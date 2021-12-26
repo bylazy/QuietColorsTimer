@@ -22,7 +22,8 @@ abstract class TimerDB: RoomDatabase(){
                             super.onCreate(db)
                             GlobalScope.launch {
                                 getInstance(context).timerDAO().apply {
-                                    //TODO(Initial data)
+                                    insertTimerWithIntervals(test_timer_1, test_timer_1_intervals)
+                                    insertTimerWithIntervals(test_timer_2, test_timer_2_intervals)
                                 }
                             }
                         }

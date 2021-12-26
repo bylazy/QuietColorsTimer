@@ -3,15 +3,11 @@ package com.bylazy.quietcolorstimer.db
 import androidx.compose.ui.graphics.Color
 import androidx.room.*
 import androidx.room.ForeignKey.CASCADE
+import com.bylazy.quietcolorstimer.data.IntervalType
+import com.bylazy.quietcolorstimer.data.TimerType
 
 //todo - move to separate file*************************
-enum class IntervalType {DEFAULT, BRIGHT, DARK, OFF}
 
-enum class TimerType {WORKOUT, COOK, OTHER}
-
-fun Color.string() = this.value.toString()
-
-fun String.color() = Color(this.toULong()) //todo - refactor with null-safety
 //todo--------------------------------------------------
 
 

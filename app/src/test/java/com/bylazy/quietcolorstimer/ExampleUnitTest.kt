@@ -1,5 +1,8 @@
 package com.bylazy.quietcolorstimer
 
+import androidx.compose.ui.graphics.Color
+import com.bylazy.quietcolorstimer.data.color
+import com.bylazy.quietcolorstimer.data.string
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -9,9 +12,9 @@ import org.junit.Assert.*
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
-class ExampleUnitTest {
+class UnitTests {
     @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+    fun testColorTypeConverters() {
+        assertEquals(Color.Green.string().color(), Color.Green)
     }
 }

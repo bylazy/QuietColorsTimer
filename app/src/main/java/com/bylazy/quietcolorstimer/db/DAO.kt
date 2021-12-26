@@ -21,9 +21,11 @@ interface TimerDAO{
     @Query("DELETE FROM intervals_table WHERE timerId=:id")
     suspend fun clearTimer(id: Int)
 
+    @Transaction
     @Query("SELECT * FROM timers_table")
     fun getAllTimersWithIntervals(): Flow<List<TimerWithIntervals>>
 
+    @Transaction
     @Query("SELECT * FROM timers_table WHERE id=:id")
     suspend fun getTimerWithIntervals(id: Int): TimerWithIntervals
 
@@ -42,6 +44,14 @@ interface TimerDAO{
         updateTimer(timerWithIntervals.timer)
         for (i in timerWithIntervals.intervals) {
             insertInterval(i.copy(timerId = timerWithIntervals.timer.id))
+        }
+    }
+
+    @Transaction
+    suspend fun insertTimerWithIntervals(timer: InTimer, intervals: List<Interval>) {
+        val row = insertTimer(timer)
+        for (i in intervals) {
+            insertInterval(i.copy(timerId = row.toInt()))
         }
     }
 

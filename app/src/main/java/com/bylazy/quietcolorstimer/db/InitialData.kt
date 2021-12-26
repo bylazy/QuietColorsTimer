@@ -1,6 +1,9 @@
 package com.bylazy.quietcolorstimer.db
 
 import androidx.compose.ui.graphics.Color
+import com.bylazy.quietcolorstimer.data.IntervalType
+import com.bylazy.quietcolorstimer.data.TimerType
+import com.bylazy.quietcolorstimer.data.string
 
 val test_timer_1 = InTimer(name = "Test timer 1",
     description = "Short description", pinned = false, type = TimerType.WORKOUT)
