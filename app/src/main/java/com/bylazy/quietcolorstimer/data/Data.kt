@@ -2,6 +2,8 @@ package com.bylazy.quietcolorstimer.data
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import com.bylazy.quietcolorstimer.db.InTimer
+import com.bylazy.quietcolorstimer.db.Interval
 
 const val MAX_INTERVAL_NAME_LENGTH = 12
 
@@ -12,9 +14,21 @@ const val NEW_TIMER_NAME = "New Timer"
 
 const val NEW_INTERVAL_NAME = "Interval"
 
+val NEW_TIMER = InTimer(name = NEW_TIMER_NAME,
+    description = "...description...",
+    pinned = false,
+    type = TimerType.OTHER)
+
+val NEW_INTERVAL = Interval(timerId = 0,
+    position = 0,
+    name = NEW_INTERVAL_NAME,
+    duration = 30,
+    color = Color.Green.string(),
+    type = IntervalType.DEFAULT)
+
 enum class IntervalType {DEFAULT, BRIGHT, DARK, OFF}
 
-enum class TimerType {WORKOUT, COOK, OTHER}
+enum class TimerType {WORKOUT, YOGA, COOK, OTHER}
 
 fun Color.string() = this.value.toString()
 

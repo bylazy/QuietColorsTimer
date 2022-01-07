@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
@@ -74,7 +75,7 @@ fun RoundIconButton(
 ) {
     Box(
         modifier
-            .size(48.dp)
+            .size(50.dp)
             .clickable(
                 interactionSource = MutableInteractionSource(),
                 indication = rememberRipple(
@@ -83,12 +84,72 @@ fun RoundIconButton(
                 onClick = onClick
             )
             .clip(shape = CircleShape)
-            .background(color = MaterialTheme.colors.secondary),
+            .background(color = MaterialTheme.colors.primary),
         contentAlignment = Alignment.Center
     ) {
         Icon(imageVector = imageVector,
             contentDescription = description,
             tint = MaterialTheme.colors.onSecondary)
+    }
+}
+
+@Composable
+fun RoundIconButton(
+    modifier: Modifier = Modifier,
+    painter: Painter,
+    description: String = "",
+    onClick: () -> Unit
+) {
+    Box(
+        modifier
+            .size(50.dp)
+            .clickable(
+                interactionSource = MutableInteractionSource(),
+                indication = rememberRipple(
+                    color = MaterialTheme.colors.secondary.copy(alpha = 0.3F)
+                ),
+                onClick = onClick
+            )
+            .clip(shape = CircleShape)
+            .background(color = MaterialTheme.colors.primary),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(painter = painter,
+            contentDescription = description,
+            tint = MaterialTheme.colors.onSecondary)
+    }
+}
+
+@Composable
+fun OvalIconButton(
+    modifier: Modifier = Modifier,
+    caption: String,
+    imageVector: ImageVector,
+    description: String = "",
+    onClick: () -> Unit
+){
+    Box(
+        modifier
+            .height(50.dp)
+            .clickable(
+                interactionSource = MutableInteractionSource(),
+                indication = rememberRipple(
+                    color = MaterialTheme.colors.secondary.copy(alpha = 0.3F)
+                ),
+                onClick = onClick
+            )
+            .clip(shape = RoundedCornerShape(50))
+            .background(color = MaterialTheme.colors.primary),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp),
+            verticalAlignment = Alignment.CenterVertically) {
+            Icon(imageVector = imageVector,
+                contentDescription = description,
+                tint = MaterialTheme.colors.onSecondary)
+            Spacer(modifier = Modifier.size(2.dp))
+            Text(text = caption, style = MaterialTheme.typography.button)
+        }
     }
 }
 
@@ -238,6 +299,17 @@ fun RoundButtonPreview() {
     QuietColorsTimerTheme {
         Surface(color = MaterialTheme.colors.background) {
             RoundIconButton(imageVector = Icons.Default.Build) {}
+        }
+    }
+}
+
+@Preview(uiMode = UI_MODE_NIGHT_YES, showBackground = true)
+@Preview(showBackground = true)
+@Composable
+fun OvalButtonPreview() {
+    QuietColorsTimerTheme {
+        Surface(color = MaterialTheme.colors.background) {
+            OvalIconButton(caption = "Button", imageVector = Icons.Default.Build) {}
         }
     }
 }

@@ -7,6 +7,7 @@ import androidx.activity.viewModels
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,12 +32,14 @@ class MainActivity : ComponentActivity() {
                     NavHost(navController = navController,
                         startDestination = "home") {
                         composable("home") {
-                            HomeScreen(homeViewModel = homeViewModel)
+                            HomeScreen(homeViewModel = homeViewModel,
+                                navController = navController)
                         }
                         composable("timer/{id}",
                             arguments = listOf(navArgument("id"){type = NavType.IntType})){
-                            val intervalsViewModel by viewModels<IntervalsViewModel>()
-                            IntervalsScreen(intervalsViewModel = intervalsViewModel)
+                            val intervalsViewModel = viewModel<IntervalsViewModel>()
+                            IntervalsScreen(intervalsViewModel = intervalsViewModel,
+                                navController = navController)
                         }
                     }
                 }

@@ -22,7 +22,7 @@ interface TimerDAO{
     suspend fun clearTimer(id: Int)
 
     @Transaction
-    @Query("SELECT * FROM timers_table")
+    @Query("SELECT * FROM timers_table ORDER BY pinned DESC")
     fun getAllTimersWithIntervals(): Flow<List<TimerWithIntervals>>
 
     @Transaction

@@ -1,6 +1,7 @@
 package com.bylazy.quietcolorstimer.ui.animlazylist
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import kotlinx.coroutines.CoroutineScope
@@ -118,7 +119,7 @@ internal class AnimatedLazyListViewModel<T>(
                                 if (it.first > intermediateList.size) {
                                     intermediateList.size
                                 } else {
-                                    it.first + if (reverseLayout) 1 else -1
+                                    it.first + if (!reverseLayout) 1 else -1 //TODO - check ????
                                 },
                                 AnimatedItem(
                                     value = item.copy(key = "${item.key}-temp"),
