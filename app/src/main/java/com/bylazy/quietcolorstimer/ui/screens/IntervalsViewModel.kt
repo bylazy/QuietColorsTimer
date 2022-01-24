@@ -1,7 +1,6 @@
 package com.bylazy.quietcolorstimer.ui.screens
 
 import android.app.Application
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
@@ -50,7 +49,11 @@ class IntervalsViewModel(application: Application,
     }
 
     fun deleteInterval(interval: Interval){
-
+        val newIntervals = mutableListOf<Interval>()
+        newIntervals.addAll(intervals)
+        newIntervals.removeAll { it.id == interval.id }
+        intervals = newIntervals
+        intervalsState.tryEmit(intervals)
     }
 
     fun cancelEdit(){
@@ -58,18 +61,51 @@ class IntervalsViewModel(application: Application,
     }
 
     fun doneEdit(interval: Interval){
-
+        currentInterval.value = null
+        val newIntervals = mutableListOf<Interval>()
+        newIntervals.addAll(intervals.map{if (it.id == interval.id) interval else it})
+        intervals = newIntervals
+        intervalsState.tryEmit(intervals)
     }
 
     fun copyInterval(interval: Interval) {
-
+        currentInterval.value = null
+        val newIntervals = mutableListOf<Interval>()
+        newIntervals.addAll(intervals)
+        val maxId = intervals.maxByOrNull { it.id }?.id?:0
+        newIntervals.add(interval.copy(id = maxId + 1))
+        intervals = newIntervals
+        intervalsState.tryEmit(intervals)
     }
 
     fun upInterval(interval: Interval) {
-
+        val index = intervals.indexOf(interval)
+        if (index == 0) return
+        currentInterval.value = null
+        val newIntervals = mutableListOf<Interval>()
+        newIntervals.addAll(intervals)
+        newIntervals.removeAt(index)
+        newIntervals.add(index-1, interval)
+        intervals = newIntervals
+        intervalsState.tryEmit(intervals)
     }
 
     fun downInterval(interval: Interval) {
+        val index = intervals.indexOf(interval)
+        if (index == intervals.lastIndex) return
+        currentInterval.value = null
+        val newIntervals = mutableListOf<Interval>()
+        newIntervals.addAll(intervals)
+        newIntervals.removeAt(index)
+        newIntervals.add(index+1, interval)
+        intervals = newIntervals
+        intervalsState.tryEmit(intervals)
+    }
 
+    fun doneAll() {
+        viewModelScope.launch {
+            repo.updateTimerWithIntervals(timer.value, intervals.mapIndexed { i,v ->
+                v.copy(id = 0, position = i+1) }) //TODO - check constrains
+        }
     }
 }

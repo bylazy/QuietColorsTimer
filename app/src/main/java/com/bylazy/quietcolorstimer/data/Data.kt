@@ -94,4 +94,5 @@ fun Color.shaded(): Color {
 }
 
 fun Int.durationText() = if (this < 100) this.toString().padStart(2, '0')
-    else (this / 60).toString().padStart(2, '0')+":"+(this % 60).toString().padStart(2, '0')
+    else (this / 60).toString()
+    .padStart(2, '0')+":"+(this % 60).toString().padStart(2, '0')

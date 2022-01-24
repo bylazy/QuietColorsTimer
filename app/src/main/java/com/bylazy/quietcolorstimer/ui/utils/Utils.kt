@@ -267,7 +267,7 @@ fun ColorDialog(color: Color, onCancel: () -> Unit, onOk: (Color) -> Unit) {
                             .weight(1F)
                     )
                     Button(onClick = { onOk(Color(r, g, b)) }) {
-                        Text(text = "Ok")
+                        Text(text = "OK")
                     }
                 }
             }
