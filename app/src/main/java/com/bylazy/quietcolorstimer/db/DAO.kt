@@ -26,6 +26,10 @@ interface TimerDAO{
     fun getAllTimersWithIntervals(): Flow<List<TimerWithIntervals>>
 
     @Transaction
+    @Query("SELECT * FROM timers_table WHERE name LIKE '%' || :filter || '%' ORDER BY pinned DESC")
+    fun getAllTimersWithIntervals(filter: String): Flow<List<TimerWithIntervals>>
+
+    @Transaction
     @Query("SELECT * FROM timers_table WHERE id=:id")
     suspend fun getTimerWithIntervals(id: Int): TimerWithIntervals
 

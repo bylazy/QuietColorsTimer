@@ -19,11 +19,9 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     private val filter = mutableStateOf("")
 
-    val timers = repo.getAllTimersWithIntervals().map { list ->
+    val timers = repo.getAllTimersWithIntervals(filter.value).map { list ->
         list.map { element -> TimerWithIntervals(element.timer, element.intervals.sortedBy { it.position }) }
-    }.also { flow ->
-        if (filter.value != "") flow.map {list ->
-            list.filter { it.timer.name.contains(filter.value, true) }} }
+    }
 
     val selectedTimer = mutableStateOf<InTimer?>(null)
 

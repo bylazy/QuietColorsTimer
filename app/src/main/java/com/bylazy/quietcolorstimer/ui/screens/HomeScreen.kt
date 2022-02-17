@@ -37,7 +37,8 @@ import com.bylazy.quietcolorstimer.ui.utils.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@ExperimentalAnimationApi
+
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun HomeScreen(homeViewModel: HomeViewModel, navController: NavController) {
     val scope = rememberCoroutineScope()
@@ -47,7 +48,9 @@ fun HomeScreen(homeViewModel: HomeViewModel, navController: NavController) {
     val selectedTimer by homeViewModel.selectedTimer
 
     Scaffold(modifier = Modifier.fillMaxSize(),
-        topBar = {/* TODO - search */},
+        topBar = {/* TODO - search */ TopAppBar() {
+            
+        }},
         bottomBar = {
                     BottomAppBar(cutoutShape = CircleShape) {
                         IconButton(onClick = { scope.launch { listState.animateScrollToItem(0) } }) {

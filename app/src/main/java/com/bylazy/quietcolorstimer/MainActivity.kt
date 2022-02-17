@@ -20,7 +20,7 @@ import com.bylazy.quietcolorstimer.ui.screens.IntervalsViewModel
 import com.bylazy.quietcolorstimer.ui.theme.QuietColorsTimerTheme
 
 class MainActivity : ComponentActivity() {
-    @ExperimentalAnimationApi
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val homeViewModel by viewModels<HomeViewModel>()

@@ -25,7 +25,7 @@ data class Interval(
     val name: String,
     val duration: Int,
     val color: String,
-    val type: IntervalType
+    val type: IntervalType //TODO - online properties
 )
 
 @Entity(tableName = "timers_table")

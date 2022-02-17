@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.bylazy.quietcolorstimer.data.NEW_INTERVAL
+import com.bylazy.quietcolorstimer.db.InTimer
 import com.bylazy.quietcolorstimer.db.Interval
 import com.bylazy.quietcolorstimer.db.TimerDB
 import com.bylazy.quietcolorstimer.db.test_timer_1
@@ -25,6 +26,8 @@ class IntervalsViewModel(application: Application,
 
     var currentInterval = mutableStateOf<Interval?>(null)
 
+    val scrollToPos = MutableStateFlow(0)
+
     init {
         viewModelScope.launch {
             val currentTimer = repo.getTimerWithIntervals(savedStateHandle.get<Int>("id")?:0)
@@ -34,8 +37,17 @@ class IntervalsViewModel(application: Application,
         }
     }
 
+    private fun scrollTo(interval: Interval) {
+        scrollToPos.tryEmit(intervals.indexOf(interval))
+    }
+
+    fun updateTimer(newTimer: InTimer) {
+        timer.value = newTimer
+    }
+
     fun selectInterval(interval: Interval) {
         currentInterval.value = interval
+        scrollTo(interval)
     }
 
     fun addInterval(){
@@ -108,4 +120,7 @@ class IntervalsViewModel(application: Application,
                 v.copy(id = 0, position = i+1) }) //TODO - check constrains
         }
     }
+
+
+
 }
