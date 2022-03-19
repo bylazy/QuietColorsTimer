@@ -176,7 +176,7 @@ fun Details(modifier: Modifier = Modifier,
         Spacer(modifier = Modifier.size(16.dp))
         Row(modifier = Modifier
             .fillMaxWidth()
-            .height(16.dp)
+            .height(20.dp)
             .padding(start = 8.dp, end = 8.dp)
             .clip(shape = RoundedCornerShape(50))
             .border(width = 1.dp, shape = RoundedCornerShape(50), color = textColor)) {
