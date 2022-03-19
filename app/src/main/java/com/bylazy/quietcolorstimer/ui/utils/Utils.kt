@@ -26,7 +26,9 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.bylazy.quietcolorstimer.ui.theme.QuietColorsTimerTheme
@@ -105,7 +107,7 @@ fun RoundIconButton(
             .size(50.dp)
             .clickable(
                 interactionSource = MutableInteractionSource(),
-                indication = rememberRipple(
+                indication = rememberRipple(bounded = false,
                     color = MaterialTheme.colors.secondary.copy(alpha = 0.3F)
                 ),
                 onClick = onClick
@@ -223,6 +225,9 @@ fun FadingBlock(visible: Boolean, content: @Composable () -> Unit) {
         content()
     }
 }
+
+@Composable
+fun dpToSp(dp: Dp) = with(LocalDensity.current) { dp.toSp() }
 
 @Composable
 fun ColorDialog(color: Color, onCancel: () -> Unit, onOk: (Color) -> Unit) {

@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import com.bylazy.quietcolorstimer.db.InTimer
 import com.bylazy.quietcolorstimer.db.Interval
+import java.time.Duration
 
 const val MAX_INTERVAL_NAME_LENGTH = 12
 
@@ -25,6 +26,14 @@ val NEW_INTERVAL = Interval(timerId = 0,
     duration = 30,
     color = Color.Green.string(),
     type = IntervalType.DEFAULT)
+
+val COOLDOWN_INTERVAL = Interval(timerId = 0,
+    position = -1,
+    name = "Get Ready!",
+    duration = 5,
+    color = Color.Black.string(),
+    type = IntervalType.DEFAULT)
+
 
 enum class IntervalType {DEFAULT, BRIGHT, DARK, OFF}
 
@@ -81,6 +90,42 @@ val colors = listOf(Color.Green,
     Color.DarkGray,
     Color.Black
 )
+
+data class Event(val interval: String,
+                 val next: String,
+                 val timer: String,
+                 val type: IntervalType,
+                 val duration: Int,
+                 val overallDuration: Int,
+                 val currentSecondsLeft: Int,
+                 val overallSeconds: Int,
+                 val currentProgress: Float,
+                 val overallProgress: Float,
+                 val color: Color)
+
+val START_EVENT = Event(interval = "Get Ready!",
+    next = "",
+    timer = "",
+    type = IntervalType.DEFAULT,
+    duration = 5,
+    overallDuration = 5,
+    currentSecondsLeft = 0,
+    overallSeconds = 0,
+    currentProgress = 0f,
+    overallProgress = 0f,
+    color = Color.Black)
+
+val FINISH_EVENT = Event(interval = "Done!",
+    next = "",
+    timer = "",
+    type = IntervalType.DEFAULT,
+    duration = 0,
+    overallDuration = 0,
+    currentSecondsLeft = 0,
+    overallSeconds = 0,
+    currentProgress = 1f,
+    overallProgress = 1f,
+    color = Color.Black)
 
 fun Color.shaded(): Color {
     return if (this.luminance()<=0.5)

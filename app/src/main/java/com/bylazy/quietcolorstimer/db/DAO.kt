@@ -33,6 +33,9 @@ interface TimerDAO{
     @Query("SELECT * FROM timers_table WHERE id=:id")
     suspend fun getTimerWithIntervals(id: Int): TimerWithIntervals
 
+    @Query("SELECT * FROM intervals_table WHERE timerId=:id")
+    fun getIntervals(id: Int): Flow<List<Interval>>
+
     @Transaction
     suspend fun updateTimerWithIntervals(timer: InTimer, intervals: List<Interval>) {
         clearTimer(timer.id)

@@ -4,13 +4,10 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -22,7 +19,6 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -30,14 +26,11 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.bylazy.quietcolorstimer.R
 import com.bylazy.quietcolorstimer.data.*
@@ -146,15 +139,18 @@ fun InListTimerEditor(
         ListItemCard {
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        painter = when (timer.type) {
-                            TimerType.WORKOUT -> painterResource(id = R.drawable.ic_type_workout)
-                            TimerType.YOGA -> painterResource(id = R.drawable.ic_type_yoga)
-                            TimerType.COOK -> painterResource(id = R.drawable.ic_type_cook)
-                            else -> painterResource(id = R.drawable.ic_type_default)
-                        },
-                        contentDescription = "Timer Icon"
-                    )
+                    Box(modifier = Modifier.size(50.dp),
+                        contentAlignment = Alignment.Center){
+                        Icon(
+                            painter = when (timer.type) {
+                                TimerType.WORKOUT -> painterResource(id = R.drawable.ic_type_workout)
+                                TimerType.YOGA -> painterResource(id = R.drawable.ic_type_yoga)
+                                TimerType.COOK -> painterResource(id = R.drawable.ic_type_cook)
+                                else -> painterResource(id = R.drawable.ic_type_default)
+                            },
+                            contentDescription = "Timer Icon"
+                        )
+                    }
                     Spacer(modifier = Modifier.size(4.dp))
                     Text(text = timer.name, style = MaterialTheme.typography.h5)
                     Spacer(modifier = Modifier

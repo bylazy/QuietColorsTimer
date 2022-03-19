@@ -11,15 +11,22 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,13 +50,38 @@ import kotlinx.coroutines.launch
 fun HomeScreen(homeViewModel: HomeViewModel, navController: NavController) {
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
-
+    val snackBarHostState = remember {SnackbarHostState()}
     val timerState by homeViewModel.timers.collectAsState(initial = listOf())
     val selectedTimer by homeViewModel.selectedTimer
-
+    var filterOn by remember { mutableStateOf(false)}
+    val filterText by homeViewModel.filterFlow.collectAsState(initial = "")
+    val focusManager = LocalFocusManager.current
+    val focusRequester = FocusRequester.Default
+    val scaffoldState = rememberScaffoldState(snackbarHostState = snackBarHostState)
     Scaffold(modifier = Modifier.fillMaxSize(),
+        scaffoldState = scaffoldState,
         topBar = {/* TODO - search */ TopAppBar() {
-            
+            if (filterOn) {
+                Spacer(modifier = Modifier.size(12.dp))
+                BasicTextField(value = filterText, onValueChange = {
+                    homeViewModel.applyFilter(it)
+                }, modifier = Modifier.focusRequester(focusRequester = focusRequester),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = {focusManager.clearFocus()})
+                )
+                Spacer(modifier = Modifier
+                    .size(4.dp)
+                    .weight(1f))
+                Icon(imageVector = Icons.Default.Clear,
+                    contentDescription = "Clear filter", modifier = Modifier.clickable {
+                        homeViewModel.applyFilter("")
+                        filterOn = false
+                    })
+                Spacer(modifier = Modifier.size(12.dp))
+            } else {
+                Spacer(modifier = Modifier.size(12.dp))
+                Text(text = "Quiet Colors Timer", style = MaterialTheme.typography.h5)
+            }
         }},
         bottomBar = {
                     BottomAppBar(cutoutShape = CircleShape) {
@@ -59,8 +91,14 @@ fun HomeScreen(homeViewModel: HomeViewModel, navController: NavController) {
                         Spacer(modifier = Modifier
                             .size(4.dp)
                             .weight(1F))
-                        IconButton(onClick = { scope.launch { listState.animateScrollToItem(timerState.size-1) } }) {
-                            Icon(imageVector = Icons.Default.KeyboardArrowDown, contentDescription = "Scroll to Bottom")
+                        IconButton(onClick = { if (!filterOn)
+                            scope.launch {
+                                filterOn = true
+                                delay(20)
+                                focusRequester.requestFocus()
+                            }
+                        }) {
+                            Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
                         }
                     }
                     },
@@ -85,10 +123,10 @@ fun HomeScreen(homeViewModel: HomeViewModel, navController: NavController) {
                     TimerRow(timer = timerWithIntervals,
                         selectedTimer = selectedTimer,
                         navController = navController,
+                        scaffoldState = scaffoldState,
                         onPin = homeViewModel::pinTimer,
                         onDelete = homeViewModel::deleteTimer,
-                        onSelect = homeViewModel::selectTimer,
-                        onPlay = {}) //TODO - onPlay
+                        onSelect = homeViewModel::selectTimer)
                 }
             })
     }
@@ -99,16 +137,17 @@ fun HomeScreen(homeViewModel: HomeViewModel, navController: NavController) {
 fun TimerRow(timer: TimerWithIntervals,
              selectedTimer: InTimer?,
              navController: NavController,
+             scaffoldState: ScaffoldState,
              onPin: (InTimer) -> Unit,
              onDelete: (InTimer) -> Unit,
-             onSelect: (InTimer) -> Unit,
-             onPlay: (InTimer) -> Unit){
+             onSelect: (InTimer) -> Unit){
     ListItemCard {
         TimerRowTop(timer = timer.timer,
+            isEmpty = timer.intervals.isEmpty(),
             selectedTimer = selectedTimer,
             navController = navController,
-            onSelect = onSelect,
-            onPlay = onPlay)
+            scaffoldState = scaffoldState,
+            onSelect = onSelect)
         ExpandableBlock(expanded = timer.timer == selectedTimer) {
             Spacer(modifier = Modifier.size(4.dp))
             TimerRowDetails(timer = timer.timer,
@@ -122,21 +161,26 @@ fun TimerRow(timer: TimerWithIntervals,
 @ExperimentalAnimationApi
 @Composable
 fun TimerRowTop(timer: InTimer,
+                isEmpty: Boolean,
                 selectedTimer: InTimer?,
                 navController: NavController,
-                onSelect: (InTimer) -> Unit,
-                onPlay: (InTimer) -> Unit){
+                scaffoldState: ScaffoldState,
+                onSelect: (InTimer) -> Unit){
+    val scope = rememberCoroutineScope()
     Row(modifier = Modifier.clickable { onSelect(timer) },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically) {
-        Icon(modifier = Modifier.padding(4.dp),
-            painter = painterResource(id = when (timer.type) {
-                TimerType.WORKOUT -> R.drawable.ic_type_workout
-                TimerType.COOK -> R.drawable.ic_type_cook
-                TimerType.YOGA -> R.drawable.ic_type_yoga
-                else -> R.drawable.ic_type_default
-            }),
-            contentDescription = "")
+        Box(modifier = Modifier.size(50.dp),
+            contentAlignment = Alignment.Center) {
+            Icon(modifier = Modifier.padding(4.dp),
+                painter = painterResource(id = when (timer.type) {
+                    TimerType.WORKOUT -> R.drawable.ic_type_workout
+                    TimerType.COOK -> R.drawable.ic_type_cook
+                    TimerType.YOGA -> R.drawable.ic_type_yoga
+                    else -> R.drawable.ic_type_default
+                }),
+                contentDescription = "")
+        }
         Spacer(modifier = Modifier.size(4.dp))
         Column(modifier = Modifier.fillMaxWidth(0.65f)) {
             Text(text = timer.name, style = MaterialTheme.typography.h6, maxLines = 1)
@@ -154,7 +198,10 @@ fun TimerRowTop(timer: InTimer,
             navController.navigate("timer/${timer.id}")
         }
         Spacer(modifier = Modifier.size(4.dp))
-        RoundIconButton(imageVector = Icons.Default.PlayArrow) { onPlay(timer) }
+        RoundIconButton(imageVector = Icons.Default.PlayArrow) {
+            if (!isEmpty) navController.navigate("start/${timer.id}")
+            else scope.launch { scaffoldState.snackbarHostState.showSnackbar("Timer is empty") }
+        }
     }
 }
 
@@ -165,10 +212,11 @@ fun TimerRowDetails(timer: InTimer,
                     onPin: (InTimer) -> Unit){
     var showDeleteAlert by remember { mutableStateOf(false)}
     Column {
+        Spacer(modifier = Modifier.size(12.dp))
         Text(text = timer.description)
-        Spacer(modifier = Modifier.size(4.dp))
+        Spacer(modifier = Modifier.size(12.dp))
         Divider()
-        Spacer(modifier = Modifier.size(4.dp))
+        Spacer(modifier = Modifier.size(12.dp))
         if (intervals.isEmpty()) Text(text = "Timer is Empty",
             style = MaterialTheme.typography.h6, color = Color.Gray)
         else LazyRow(verticalAlignment = Alignment.CenterVertically,
@@ -182,9 +230,9 @@ fun TimerRowDetails(timer: InTimer,
                 }
             }
         }
-        Spacer(modifier = Modifier.size(4.dp))
+        Spacer(modifier = Modifier.size(12.dp))
         Divider()
-        Spacer(modifier = Modifier.size(4.dp))
+        Spacer(modifier = Modifier.size(12.dp))
         Row(horizontalArrangement = Arrangement.SpaceBetween) {
             OvalIconButton(caption = "Delete", description = "Delete",
                 imageVector = Icons.Default.Delete) {
@@ -225,9 +273,9 @@ fun TimerRowDetails(timer: InTimer,
 fun IntervalBox(interval: Interval, index: Int){
     Box(modifier = Modifier
         .background(color = interval.color.color(),
-            shape = RoundedCornerShape(9.dp))) {
+            shape = RoundedCornerShape(10.dp))) {
         Box(modifier = Modifier
-            .size(18.dp)
+            .size(20.dp)
             .align(Alignment.TopStart)
             .background(color = Color.DarkGray, shape = CircleShape),
             contentAlignment = Alignment.Center) {
@@ -237,7 +285,7 @@ fun IntervalBox(interval: Interval, index: Int){
         }
         Column(modifier = Modifier
             .align(Alignment.Center)
-            .padding(8.dp),
+            .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = interval.duration.durationText(),
                 color = if (interval.color.color().luminance() >= 0.5f) Color.Black else Color.White,
@@ -260,7 +308,7 @@ fun TimerRowPreview() {
     QuietColorsTimerTheme {
         Surface(color = MaterialTheme.colors.background) {
             TimerRow(TimerWithIntervals(test_timer_1.copy(description = "short shorter shortest most shortest description of all descriptions"),
-                test_timer_2_intervals), null, rememberNavController(), {}, {}, {}, {})
+                test_timer_2_intervals), null, rememberNavController(), rememberScaffoldState(), {}, {}, {})
         }
     }
 }

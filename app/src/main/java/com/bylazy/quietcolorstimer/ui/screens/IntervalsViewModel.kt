@@ -61,6 +61,7 @@ class IntervalsViewModel(application: Application,
     }
 
     fun deleteInterval(interval: Interval){
+        currentInterval.value = null
         val newIntervals = mutableListOf<Interval>()
         newIntervals.addAll(intervals)
         newIntervals.removeAll { it.id == interval.id }

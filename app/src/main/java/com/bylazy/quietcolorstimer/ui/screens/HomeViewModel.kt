@@ -9,6 +9,10 @@ import com.bylazy.quietcolorstimer.db.InTimer
 import com.bylazy.quietcolorstimer.db.TimerDB
 import com.bylazy.quietcolorstimer.db.TimerWithIntervals
 import com.bylazy.quietcolorstimer.repo.Repo
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -17,16 +21,19 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val db = TimerDB.getInstance(application)
     private val repo = Repo(db.timerDAO())
 
-    private val filter = mutableStateOf("")
+    val filterFlow = MutableStateFlow("")
 
-    val timers = repo.getAllTimersWithIntervals(filter.value).map { list ->
-        list.map { element -> TimerWithIntervals(element.timer, element.intervals.sortedBy { it.position }) }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val timers = filterFlow.flatMapLatest { filter ->
+        repo.getAllTimersWithIntervals(filter).map { list ->
+            list.map { element -> TimerWithIntervals(element.timer, element.intervals.sortedBy { it.position }) }
+        }
     }
 
     val selectedTimer = mutableStateOf<InTimer?>(null)
 
     fun applyFilter(newFilter: String) {
-        filter.value = newFilter
+        filterFlow.tryEmit(newFilter)
     }
 
     fun addTimer() {
@@ -37,7 +44,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun selectTimer(timer: InTimer) {
-        selectedTimer.value = timer
+        if (selectedTimer.value == timer) selectedTimer.value = null
+        else selectedTimer.value = timer
     }
 
     fun pinTimer(timer: InTimer) {
