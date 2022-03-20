@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 
 class IntervalsViewModel(application: Application,
                          savedStateHandle: SavedStateHandle) : AndroidViewModel(application) {
-    private val db = TimerDB.getInstance(application)
+    private val db = TimerDB.getInstance(application, viewModelScope)
     private val repo = Repo(db.timerDAO())
 
     private var intervals = mutableListOf<Interval>()

@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val db = TimerDB.getInstance(application)
+    private val db = TimerDB.getInstance(application, viewModelScope)
     private val repo = Repo(db.timerDAO())
 
     val filterFlow = MutableStateFlow("")

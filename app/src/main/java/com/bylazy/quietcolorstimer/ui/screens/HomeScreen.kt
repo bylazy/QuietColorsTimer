@@ -60,7 +60,7 @@ fun HomeScreen(homeViewModel: HomeViewModel, navController: NavController) {
     val scaffoldState = rememberScaffoldState(snackbarHostState = snackBarHostState)
     Scaffold(modifier = Modifier.fillMaxSize(),
         scaffoldState = scaffoldState,
-        topBar = {/* TODO - search */ TopAppBar() {
+        topBar = {/* TODO - search */ TopAppBar {
             if (filterOn) {
                 Spacer(modifier = Modifier.size(12.dp))
                 BasicTextField(value = filterText, onValueChange = {

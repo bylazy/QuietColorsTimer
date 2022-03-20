@@ -406,6 +406,7 @@ fun IntervalEditor(
     val focusManager = LocalFocusManager.current
     var intervalName by remember { mutableStateOf(interval.name) }
     var intervalType by remember { mutableStateOf(interval.type) }
+    var intervalSignal by remember { mutableStateOf(interval.signal)}
     var intervalColor by remember { mutableStateOf(interval.color.color()) }
     var intervalDuration by remember { mutableStateOf(interval.duration) }
     //val intervalDuration by remember { mutableStateOf(TextFieldValue(interval.duration.toString())) }
@@ -476,6 +477,51 @@ fun IntervalEditor(
             Text(text = "Default")
         }
         Spacer(modifier = Modifier.size(4.dp))
+        Text(text = "Sound Settings")
+        Spacer(modifier = Modifier.size(4.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            RadioButton(selected = intervalSignal == IntervalSignal.SILENT,
+                onClick = { intervalSignal = IntervalSignal.SILENT })
+            Spacer(modifier = Modifier.size(4.dp))
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Silent"
+            )
+            Spacer(modifier = Modifier.size(4.dp))
+            Text(text = "Silent")
+            Spacer(
+                modifier = Modifier
+                    .size(4.dp)
+                    .weight(1f)
+            )
+            RadioButton(selected = intervalSignal == IntervalSignal.SOUND,
+                onClick = { intervalSignal = IntervalSignal.SOUND })
+            Spacer(modifier = Modifier.size(4.dp))
+            Icon(
+                imageVector = Icons.Default.Notifications,
+                contentDescription = "Sound"
+            )
+            Spacer(modifier = Modifier.size(4.dp))
+            Text(text = "Sound")
+            Spacer(
+                modifier = Modifier
+                    .size(4.dp)
+                    .weight(1f)
+            )
+            RadioButton(selected = intervalSignal == IntervalSignal.VIBRATION,
+                onClick = { intervalSignal = IntervalSignal.VIBRATION })
+            Spacer(modifier = Modifier.size(4.dp))
+            Icon(
+                imageVector = Icons.Default.Warning, //TODO change icons
+                contentDescription = "Vibration"
+            )
+            Spacer(modifier = Modifier.size(4.dp))
+            Text(text = "Vibration")
+        }
+        Spacer(modifier = Modifier.size(4.dp))
         Divider()
         Spacer(modifier = Modifier.size(4.dp))
         Text(text = "Interval color:")
@@ -516,6 +562,7 @@ fun IntervalEditor(
                         name = intervalName,
                         duration = intervalDuration,
                         color = intervalColor.string(),
+                        signal = intervalSignal,
                         type = intervalType
                     )
                 )

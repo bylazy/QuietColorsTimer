@@ -1,14 +1,10 @@
 package com.bylazy.quietcolorstimer.db
 
-import androidx.compose.ui.graphics.Color
 import androidx.room.*
 import androidx.room.ForeignKey.CASCADE
+import com.bylazy.quietcolorstimer.data.IntervalSignal
 import com.bylazy.quietcolorstimer.data.IntervalType
 import com.bylazy.quietcolorstimer.data.TimerType
-
-//todo - move to separate file*************************
-
-//todo--------------------------------------------------
 
 
 @Entity(tableName = "intervals_table",
@@ -25,6 +21,8 @@ data class Interval(
     val name: String,
     val duration: Int,
     val color: String,
+    @ColumnInfo(defaultValue = "SILENT")
+    val signal: IntervalSignal,
     val type: IntervalType //TODO - online properties
 )
 

@@ -20,7 +20,7 @@ class TimerViewModel(
     savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
 
-    private val db = TimerDB.getInstance(application)
+    private val db = TimerDB.getInstance(application, viewModelScope)
     private val repo = Repo(db.timerDAO())
 
     private val intervals = mutableListOf(COOLDOWN_INTERVAL)
@@ -49,6 +49,12 @@ class TimerViewModel(
                 intervals.forEachIndexed { index, interval ->
 
                     for (i in 1..interval.duration) {
+                        while (pause.value) {delay(100)}
+                        if (skip) {
+                            overall += interval.duration - i + 1
+                            skip = false
+                            break
+                        }
                         emit(Event(interval = interval.name,
                             next = if (index == intervals.lastIndex) "Finish!" else intervals[index+1].name,
                             timer = timer,
@@ -61,7 +67,6 @@ class TimerViewModel(
                             overallProgress = overall.toFloat() / overallDuration.toFloat(),
                             color = if (i == interval.duration - 1 && index != intervals.lastIndex) intervals[index+1].color.color()
                             else interval.color.color()))
-
                         overall++
                     }
                 }

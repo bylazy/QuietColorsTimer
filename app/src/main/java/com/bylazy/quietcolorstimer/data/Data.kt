@@ -25,6 +25,7 @@ val NEW_INTERVAL = Interval(timerId = 0,
     name = NEW_INTERVAL_NAME,
     duration = 30,
     color = Color.Green.string(),
+    signal = IntervalSignal.SILENT,
     type = IntervalType.DEFAULT)
 
 val COOLDOWN_INTERVAL = Interval(timerId = 0,
@@ -32,12 +33,15 @@ val COOLDOWN_INTERVAL = Interval(timerId = 0,
     name = "Get Ready!",
     duration = 5,
     color = Color.Black.string(),
+    signal = IntervalSignal.SILENT,
     type = IntervalType.DEFAULT)
 
 
 enum class IntervalType {DEFAULT, BRIGHT, DARK, OFF}
 
 enum class TimerType {WORKOUT, YOGA, COOK, OTHER}
+
+enum class IntervalSignal {SILENT, SOUND, VIBRATION}
 
 fun Color.string() = this.value.toString()
 
