@@ -1,5 +1,6 @@
 package com.bylazy.quietcolorstimer.ui.screens
 
+import android.content.res.Configuration
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -24,11 +25,16 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.fontResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -36,8 +42,11 @@ import com.bylazy.quietcolorstimer.R
 import com.bylazy.quietcolorstimer.data.*
 import com.bylazy.quietcolorstimer.db.InTimer
 import com.bylazy.quietcolorstimer.db.Interval
+import com.bylazy.quietcolorstimer.db.test_timer_1
+import com.bylazy.quietcolorstimer.db.test_timer_1_intervals
 import com.bylazy.quietcolorstimer.ui.animlazylist.AnimatedLazyColumn
 import com.bylazy.quietcolorstimer.ui.animlazylist.AnimatedLazyListItem
+import com.bylazy.quietcolorstimer.ui.theme.QuietColorsTimerTheme
 import com.bylazy.quietcolorstimer.ui.utils.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -139,8 +148,10 @@ fun InListTimerEditor(
         ListItemCard {
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(modifier = Modifier.size(50.dp),
-                        contentAlignment = Alignment.Center){
+                    Box(
+                        modifier = Modifier.size(50.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Icon(
                             painter = when (timer.type) {
                                 TimerType.WORKOUT -> painterResource(id = R.drawable.ic_type_workout)
@@ -153,9 +164,11 @@ fun InListTimerEditor(
                     }
                     Spacer(modifier = Modifier.size(4.dp))
                     Text(text = timer.name, style = MaterialTheme.typography.h5)
-                    Spacer(modifier = Modifier
-                        .size(4.dp)
-                        .weight(1f))
+                    Spacer(
+                        modifier = Modifier
+                            .size(4.dp)
+                            .weight(1f)
+                    )
                     FadingBlock(visible = !expanded) {
                         RoundIconButton(imageVector = Icons.Default.Edit) {
                             expanded = true
@@ -174,7 +187,8 @@ fun InListTimerEditor(
                             keyboardActions = KeyboardActions(onNext = { focusRequester.requestFocus() })
                         )
                         Spacer(modifier = Modifier.size(4.dp))
-                        OutlinedTextField(value = desc,
+                        OutlinedTextField(
+                            value = desc,
                             onValueChange = { desc = it },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -256,15 +270,21 @@ fun InListTimerEditor(
                         Spacer(modifier = Modifier.size(4.dp))
                         Row {
                             Spacer(modifier = Modifier.size(12.dp))
-                            OvalIconButton(caption = "Cancel",
-                                imageVector = Icons.Default.Close) {
+                            OvalIconButton(
+                                caption = "Cancel",
+                                imageVector = Icons.Default.Close
+                            ) {
                                 expanded = false
                             }
-                            Spacer(modifier = Modifier
-                                .size(12.dp)
-                                .weight(1f))
-                            OvalIconButton(caption = "OK",
-                                imageVector = Icons.Default.Done) {
+                            Spacer(
+                                modifier = Modifier
+                                    .size(12.dp)
+                                    .weight(1f)
+                            )
+                            OvalIconButton(
+                                caption = "OK",
+                                imageVector = Icons.Default.Done
+                            ) {
                                 onOk(timer.copy(name = name, description = desc, type = type))
                                 expanded = false
                             }
@@ -406,7 +426,7 @@ fun IntervalEditor(
     val focusManager = LocalFocusManager.current
     var intervalName by remember { mutableStateOf(interval.name) }
     var intervalType by remember { mutableStateOf(interval.type) }
-    var intervalSignal by remember { mutableStateOf(interval.signal)}
+    var intervalSignal by remember { mutableStateOf(interval.signal) }
     var intervalColor by remember { mutableStateOf(interval.color.color()) }
     var intervalDuration by remember { mutableStateOf(interval.duration) }
     //val intervalDuration by remember { mutableStateOf(TextFieldValue(interval.duration.toString())) }
@@ -588,7 +608,7 @@ fun ColorSelector(initial: Color, onChange: (Color) -> Unit) {
         }
         Spacer(modifier = Modifier.size(12.dp))
         Column(modifier = Modifier.fillMaxWidth()) {
-            Text(text = "Or select:", fontSize = 11.sp)
+            Text(text = "Or select color:", fontSize = 11.sp)
             Spacer(modifier = Modifier.size(4.dp))
             LazyRow(state = listState) {
                 items(colors) { c ->
@@ -646,7 +666,7 @@ fun DurationSelector(initial: Int, onChange: (Int) -> Unit) {
             duration.value =
                 TextFieldValue(((duration.value.text.toInt() - 1)).coerceAtLeast(0).toString())
             onChange(duration.value.text.toIntOrNull() ?: 0)
-        }) {
+        }, shape = RoundedCornerShape(50)) {
             Text(text = "-", style = MaterialTheme.typography.button)
         }
         Spacer(modifier = Modifier.size(4.dp))
@@ -699,8 +719,370 @@ fun DurationSelector(initial: Int, onChange: (Int) -> Unit) {
         RepeatingClickableButton(onLongClick = {
             duration.value = TextFieldValue((duration.value.text.toInt() + 1).toString())
             onChange(duration.value.text.toIntOrNull() ?: 0)
-        }) {
+        }, shape = RoundedCornerShape(50)) {
             Text(text = "+", style = MaterialTheme.typography.button)
+        }
+    }
+}
+
+//---v2-design---
+
+@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
+@Composable
+fun IntervalDetails(
+    interval: Interval,
+    onDelete: (Interval) -> Unit,
+    onDone: (Interval) -> Unit,
+    onCancel: () -> Unit
+) {
+    var name by remember { mutableStateOf(interval.name) }
+    var duration by remember { mutableStateOf(interval.duration) }
+    var type by remember { mutableStateOf(interval.type) }
+    var sound by remember { mutableStateOf(interval.signal) }
+    var color by remember { mutableStateOf(interval.color.color()) }
+    var typeSelectorExpanded by remember { mutableStateOf(false) }
+    var soundSelectorExpanded by remember { mutableStateOf(false)}
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
+        Divider() //todo padding
+        Spacer(modifier = Modifier.size(8.dp))
+        TextField(
+            value = name,
+            onValueChange = { name = it.take(MAX_INTERVAL_NAME_LENGTH) },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(text = "Short interval name") },
+            singleLine = true
+        )
+        Spacer(modifier = Modifier.size(8.dp))
+        Divider() //todo padding
+        Spacer(modifier = Modifier.size(8.dp))
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.weight(0.5f)) {
+                ExposedDropdownMenuBox(expanded = typeSelectorExpanded,
+                    onExpandedChange = { typeSelectorExpanded = !typeSelectorExpanded }) {
+                    TextField(value = when (type) {
+                        IntervalType.BRIGHT -> "Bright"
+                        IntervalType.DARK -> "Dark"
+                        else -> "Default"
+                    },
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(
+                                expanded = typeSelectorExpanded
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                painter = when (type) {
+                                    IntervalType.BRIGHT -> painterResource(id = R.drawable.ic_int_type_bright)
+                                    IntervalType.DARK -> painterResource(id = R.drawable.ic_int_type_dark)
+                                    else -> painterResource(id = R.drawable.ic_int_type_default)
+                                },
+                                contentDescription = "Type"
+                            )
+                        })
+                    ExposedDropdownMenu(expanded = typeSelectorExpanded,
+                        onDismissRequest = { typeSelectorExpanded = false }) {
+                        DropdownMenuItem(onClick = {
+                            type = IntervalType.BRIGHT
+                            typeSelectorExpanded = false
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_int_type_bright),
+                                contentDescription = "Type"
+                            )
+                            Spacer(modifier = Modifier.size(4.dp))
+                            Text(
+                                text = "Bright",
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
+                        }
+                        DropdownMenuItem(onClick = {
+                            type = IntervalType.DARK
+                            typeSelectorExpanded = false
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_int_type_dark),
+                                contentDescription = "Type"
+                            )
+                            Spacer(modifier = Modifier.size(4.dp))
+                            Text(
+                                text = "Dark",
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
+                        }
+                        DropdownMenuItem(onClick = {
+                            type = IntervalType.DEFAULT
+                            typeSelectorExpanded = false
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_int_type_default),
+                                contentDescription = "Type"
+                            )
+                            Spacer(modifier = Modifier.size(4.dp))
+                            Text(
+                                text = "Default",
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.size(8.dp))
+            Column(modifier = Modifier.weight(0.5f)) {
+                ExposedDropdownMenuBox(expanded = soundSelectorExpanded,
+                    onExpandedChange = { soundSelectorExpanded = !soundSelectorExpanded }) {
+                    TextField(value = when (sound) {
+                        IntervalSignal.SILENT -> "Silent"
+                        IntervalSignal.SOUND -> "Sound"
+                        IntervalSignal.VIBRATION -> "Vibration"
+                    },
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(
+                                expanded = typeSelectorExpanded
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                painter = when (sound) {
+                                    IntervalSignal.SILENT -> painterResource(id = R.drawable.ic_int_sound_silent)
+                                    IntervalSignal.SOUND -> painterResource(id = R.drawable.ic_int_sound_quiet)
+                                    IntervalSignal.VIBRATION -> painterResource(id = R.drawable.ic_int_sound_vibro)
+                                },
+                                contentDescription = "Sound"
+                            )
+                        })
+                    ExposedDropdownMenu(expanded = soundSelectorExpanded,
+                        onDismissRequest = { soundSelectorExpanded = false }) {
+                        DropdownMenuItem(onClick = {
+                            sound = IntervalSignal.SILENT
+                            typeSelectorExpanded = false
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_int_sound_silent),
+                                contentDescription = "Sound"
+                            )
+                            Spacer(modifier = Modifier.size(4.dp))
+                            Text(
+                                text = "Silent",
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
+                        }
+                        DropdownMenuItem(onClick = {
+                            sound = IntervalSignal.SOUND
+                            typeSelectorExpanded = false
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_int_sound_quiet),
+                                contentDescription = "Type"
+                            )
+                            Spacer(modifier = Modifier.size(4.dp))
+                            Text(
+                                text = "Sound",
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
+                        }
+                        DropdownMenuItem(onClick = {
+                            sound = IntervalSignal.VIBRATION
+                            typeSelectorExpanded = false
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_int_sound_vibro),
+                                contentDescription = "Type"
+                            )
+                            Spacer(modifier = Modifier.size(4.dp))
+                            Text(
+                                text = "Vibration",
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        Spacer(modifier = Modifier.size(8.dp))
+        Divider() //todo padding
+        Spacer(modifier = Modifier.size(8.dp))
+        //todo new?
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(text = "Duration (seconds):")
+            Spacer(modifier = Modifier.size(8.dp).weight(1f))
+            DurationSelector(initial = duration, onChange = {duration = it})
+        }
+        Spacer(modifier = Modifier.size(8.dp))
+        Divider() //todo padding
+        Spacer(modifier = Modifier.size(8.dp))
+        //todo new?
+        ColorSelector(initial = color, onChange = {color = it})
+        Spacer(modifier = Modifier.size(8.dp))
+        Divider() //todo padding
+        Spacer(modifier = Modifier.size(8.dp))
+        Row {
+            FilledIconButton(modifier = Modifier,
+                onClick = { onDelete(interval) },
+                text = "Delete",
+                imageVector = Icons.Default.Delete)
+            Spacer(modifier = Modifier
+                .size(8.dp)
+                .weight(1f))
+            FilledIconButton(modifier = Modifier,
+                onClick = { onCancel() },
+                text = "Cancel",
+                imageVector = Icons.Default.Close)
+            Spacer(modifier = Modifier
+                .size(8.dp)
+                .weight(1f))
+            FilledIconButton(modifier = Modifier,
+                //todo - check constrains
+                onClick = { onDone(interval.copy(name = name,
+                    duration = duration,
+                    type = type,
+                    signal = sound,
+                    color = color.string())) },
+                text = "Done",
+                imageVector = Icons.Default.Done)
+        }
+    }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun IntervalRowTop(
+    interval: Interval,
+    selected: Boolean,
+    onCopy: (Interval) -> Unit,
+    onUp: (Interval) -> Unit,
+    onDown: (Interval) -> Unit,
+    onSelect: (Interval) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        DurationBox(duration = interval.duration, color = interval.color.color())
+        Spacer(modifier = Modifier.size(8.dp))
+        Column {
+            Icon(
+                painter = painterResource(
+                    id = when (interval.type) {
+                        IntervalType.BRIGHT -> R.drawable.ic_int_type_bright
+                        IntervalType.DARK -> R.drawable.ic_int_type_dark
+                        else -> R.drawable.ic_int_type_default
+                    }
+                ), contentDescription = "Type",
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.size(2.dp))
+            Icon(
+                painter = painterResource(
+                    id = when (interval.signal) {
+                        IntervalSignal.SILENT -> R.drawable.ic_int_sound_silent
+                        IntervalSignal.SOUND -> R.drawable.ic_int_sound_quiet
+                        IntervalSignal.VIBRATION -> R.drawable.ic_int_sound_vibro
+                    }
+                ),
+                contentDescription = "Sound",
+                modifier = Modifier.size(18.dp)
+            )
+        }
+        Spacer(modifier = Modifier.size(8.dp))
+        Text(text = interval.name, fontWeight = FontWeight.Bold)
+        Spacer(
+            modifier = Modifier
+                .size(8.dp)
+                .weight(1f)
+        )
+        FadingBlock(visible = !selected) {
+            Row {
+                RoundIconButton(
+                    onClick = { onCopy(interval) },
+                    painter = painterResource(id = R.drawable.ic_copy),
+                    desc = "Copy"
+                )
+                Spacer(modifier = Modifier.size(8.dp))
+                RoundIconButton(
+                    onClick = { onUp(interval) },
+                    imageVector = Icons.Default.KeyboardArrowUp,
+                    desc = "Move Up"
+                )
+                Spacer(modifier = Modifier.size(8.dp))
+                RoundIconButton(
+                    onClick = { onDown(interval) },
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    desc = "Move Down"
+                )
+                Spacer(modifier = Modifier.size(8.dp))
+                RoundIconButton(
+                    onClick = { onSelect(interval) },
+                    imageVector = Icons.Default.Edit,
+                    desc = "Edit"
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun DurationBox(duration: Int, color: Color) {
+    Box(
+        modifier = Modifier
+            .height(40.dp)
+            .width(60.dp)
+            .background(shape = RoundedCornerShape(8.dp), color = color),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = duration.durationText(),
+            fontFamily = FontFamily(Font(R.font.ubuntu_bold)),
+            fontSize = dpToSp(dp = 16.dp),
+            color = color.onColor()
+        )
+    }
+}
+
+//---end-v2-design---
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
+@Preview(showBackground = true)
+@Composable
+fun IntervalPreview() {
+    QuietColorsTimerTheme {
+        Surface(color = MaterialTheme.colors.background) {
+            DurationBox(duration = 188, color = Color.Blue)
+        }
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
+@Preview(showBackground = true)
+@Composable
+fun IntervalRowTopPreview() {
+    QuietColorsTimerTheme {
+        Surface(color = MaterialTheme.colors.background) {
+            IntervalRowTop(interval = test_timer_1_intervals[0],
+                selected = false, onCopy = {}, onDown = {}, onSelect = {}, onUp = {})
+        }
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
+@Preview(showBackground = true)
+@Composable
+fun IntervalDetailsPreview() {
+    QuietColorsTimerTheme {
+        Surface(color = MaterialTheme.colors.background) {
+            IntervalDetails(interval = test_timer_1_intervals[0], onDelete = {}, onDone = {}) {
+
+            }
         }
     }
 }

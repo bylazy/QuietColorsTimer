@@ -5,7 +5,14 @@
       <map>
         <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.16111111111111112" />
         <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable/ic_app.xml" value="0.16111111111111112" />
+        <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable/ic_big_common.xml" value="0.1095" />
+        <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable/ic_big_cook.xml" value="0.1095" />
+        <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable/ic_big_workout.xml" value="0.136" />
+        <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable/ic_big_yoga.xml" value="0.12" />
         <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable/ic_copy.xml" value="0.264" />
+        <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable/ic_int_sound_quiet.xml" value="0.12" />
+        <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable/ic_int_sound_silent.xml" value="0.10400000000000001" />
+        <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable/ic_int_sound_vibro.xml" value="0.12" />
         <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable/ic_int_type_bright.xml" value="0.16111111111111112" />
         <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable/ic_int_type_dark.xml" value="0.16111111111111112" />
         <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable/ic_int_type_default.xml" value="0.16111111111111112" />

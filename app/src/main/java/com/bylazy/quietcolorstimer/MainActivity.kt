@@ -1,11 +1,12 @@
 package com.bylazy.quietcolorstimer
 
-import android.os.Bundle
+import android.content.Context
+import android.media.MediaPlayer
+import android.os.*
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -20,11 +21,18 @@ import com.bylazy.quietcolorstimer.ui.theme.QuietColorsTimerTheme
 
 class MainActivity : ComponentActivity() {
 
-    var defaultBrightness: Float = -1f
+    private var defaultBrightness: Float = -1f
+    private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var vibrator: Vibrator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         defaultBrightness = window.attributes.screenBrightness
+        mediaPlayer = MediaPlayer.create(this.applicationContext, R.raw.s_knocks) // todo select sound
+        vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vManager = this.applicationContext.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            vManager.defaultVibrator
+        } else this.applicationContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         val homeViewModel by viewModels<HomeViewModel>()
         setContent {
             QuietColorsTimerTheme {
@@ -34,7 +42,7 @@ class MainActivity : ComponentActivity() {
                     NavHost(navController = navController,
                         startDestination = "home") {
                         composable("home") {
-                            HomeScreen(homeViewModel = homeViewModel,
+                            HomeScreenContent(viewModel = homeViewModel,
                                 navController = navController)
                         }
                         composable("timer/{id}",
@@ -57,8 +65,19 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun playSound(){
+        mediaPlayer.start()
+    }
+
+    private fun vibrate() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            vibrator.vibrate(VibrationEffect.createOneShot(200, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else vibrator.vibrate(200)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+        mediaPlayer.release()
         val windowAttributes = window.attributes
         windowAttributes.screenBrightness = defaultBrightness
         window.attributes = windowAttributes

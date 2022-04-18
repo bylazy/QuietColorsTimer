@@ -52,6 +52,10 @@ fun String.color(): Color {
     return color
 }
 
+fun Color.onColor(): Color {
+    return if (this.luminance() >= 0.5f) Color.Black else Color.White
+}
+
 //Default palette
 val colors = listOf(Color.Green,
     Color(0xFF3D550C),

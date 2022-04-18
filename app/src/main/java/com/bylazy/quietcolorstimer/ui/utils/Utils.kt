@@ -1,5 +1,6 @@
 package com.bylazy.quietcolorstimer.ui.utils
 
+import android.accounts.AuthenticatorDescription
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
@@ -16,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -58,13 +60,10 @@ fun ListBlock(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
 fun ListItemCard(modifier: Modifier = Modifier, content: @Composable () -> Unit){
     Card(
         modifier
-            .fillMaxWidth()
-            .padding(2.dp),
+            .fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
-        elevation = 4.dp) {
-        Column(modifier.padding(4.dp)) {
-            content()
-        }
+        elevation = 8.dp) {
+        content()
     }
 }
 
@@ -107,7 +106,8 @@ fun RoundIconButton(
             .size(50.dp)
             .clickable(
                 interactionSource = MutableInteractionSource(),
-                indication = rememberRipple(bounded = false,
+                indication = rememberRipple(
+                    bounded = false,
                     color = MaterialTheme.colors.secondary.copy(alpha = 0.3F)
                 ),
                 onClick = onClick
@@ -280,6 +280,75 @@ fun ColorDialog(color: Color, onCancel: () -> Unit, onOk: (Color) -> Unit) {
     }
 }
 
+//---v2---design---end
+
+@Composable
+fun FilledIconButton(modifier: Modifier,
+                     onClick: () -> Unit,
+                     text: String,
+                     imageVector: ImageVector,
+                     contentDescription: String = "") {
+    Row(modifier
+        .height(40.dp)
+        .clip(RoundedCornerShape(50))
+        .clickable { onClick() }
+        .background(color = MaterialTheme.colors.secondary, shape = RoundedCornerShape(50))
+        .padding(start = 12.dp, top = 8.dp, bottom = 8.dp, end = 16.dp),
+        verticalAlignment = Alignment.CenterVertically) {
+            Icon(imageVector = imageVector,
+                contentDescription = contentDescription,
+                modifier = Modifier.size(24.dp))
+            Spacer(modifier = Modifier.size(8.dp))
+            Text(text = text, style = MaterialTheme.typography.button)
+    }
+}
+
+@Composable
+fun RoundIconButton(onClick: () -> Unit, painter: Painter, desc: String) {
+    Box(modifier = Modifier
+        .size(40.dp)
+        .clip(shape = CircleShape)
+        .clickable {
+            onClick()
+        }
+        .background(
+            color = MaterialTheme.colors.secondary,
+            shape = CircleShape
+        ),
+        contentAlignment = Alignment.Center) {
+        Icon(
+            painter = painter,
+            contentDescription = desc,
+            modifier = Modifier.size(24.dp)
+        )
+    }
+}
+
+@Composable
+fun RoundIconButton(onClick: () -> Unit, imageVector: ImageVector, desc: String) {
+    Box(modifier = Modifier
+        .size(40.dp)
+        .clip(shape = CircleShape)
+        .clickable {
+            onClick()
+        }
+        .background(
+            color = MaterialTheme.colors.secondary,
+            shape = CircleShape
+        ),
+        contentAlignment = Alignment.Center) {
+        Icon(
+            imageVector = imageVector,
+            contentDescription = desc,
+            modifier = Modifier.size(24.dp)
+        )
+    }
+}
+
+//---v2---design---end
+
+
+
 @Preview(uiMode = UI_MODE_NIGHT_YES, showBackground = true)
 @Preview(showBackground = true)
 @Composable
@@ -319,22 +388,5 @@ fun OvalButtonPreview() {
     }
 }
 
-@Preview(uiMode = UI_MODE_NIGHT_YES, showBackground = true)
-@Preview(showBackground = true)
-@Composable
-fun ListItemPreview() {
-    QuietColorsTimerTheme {
-        Surface(color = MaterialTheme.colors.background) {
-            ListItemCard() {                
-                Column() {
-                    Text(text = "Some Text")
-                    Spacer(modifier = Modifier.size(4.dp))
-                    Button(onClick = { /*TODO*/ }) {
-                        Text(text = "Some Button")
-                    }
-                }
-            }
-        }
-    }
-}
+
 
