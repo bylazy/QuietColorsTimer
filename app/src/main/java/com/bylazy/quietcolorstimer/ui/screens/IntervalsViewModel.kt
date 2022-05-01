@@ -11,7 +11,9 @@ import com.bylazy.quietcolorstimer.db.Interval
 import com.bylazy.quietcolorstimer.db.TimerDB
 import com.bylazy.quietcolorstimer.db.test_timer_1
 import com.bylazy.quietcolorstimer.repo.Repo
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class IntervalsViewModel(application: Application,
@@ -28,6 +30,14 @@ class IntervalsViewModel(application: Application,
 
     val scrollToPos = MutableStateFlow(0)
 
+    val state = repo.getTimerWithIntervalsFlow(savedStateHandle.get<Int>("id")?:0)
+        .onEach {
+            timer.value = it.timer
+            intervals = it.intervals.toMutableList()
+            intervalsState.tryEmit(intervals)
+        }
+
+    /*
     init {
         viewModelScope.launch {
             val currentTimer = repo.getTimerWithIntervals(savedStateHandle.get<Int>("id")?:0)
@@ -35,7 +45,7 @@ class IntervalsViewModel(application: Application,
             intervals = currentTimer.intervals.toMutableList()
             intervalsState.tryEmit(intervals)
         }
-    }
+    }*/
 
     private fun scrollTo(interval: Interval) {
         scrollToPos.tryEmit(intervals.indexOf(interval))
@@ -57,7 +67,10 @@ class IntervalsViewModel(application: Application,
         newIntervals.add(NEW_INTERVAL.copy(id = maxId + 1))
         intervals = newIntervals
         intervalsState.tryEmit(intervals)
-        selectInterval(intervals.last())
+        viewModelScope.launch {
+            delay(50)
+            selectInterval(intervals.last())
+        }
     }
 
     fun deleteInterval(interval: Interval){

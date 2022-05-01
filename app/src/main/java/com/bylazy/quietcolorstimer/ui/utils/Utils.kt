@@ -1,13 +1,11 @@
 package com.bylazy.quietcolorstimer.ui.utils
 
-import android.accounts.AuthenticatorDescription
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.animation.*
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.gestures.forEachGesture
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -15,46 +13,33 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.drawscope.DrawStyle
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.bylazy.quietcolorstimer.db.test_timer_1
+import com.bylazy.quietcolorstimer.ui.screens.TimerEditor
 import com.bylazy.quietcolorstimer.ui.theme.QuietColorsTimerTheme
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
-
-@Composable
-fun ListBlock(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    Row(
-        modifier
-            .fillMaxWidth()
-            .padding(2.dp)
-            .clip(shape = MaterialTheme.shapes.medium)
-            .border(
-                shape = MaterialTheme.shapes.medium, width = 1.dp,
-                color = MaterialTheme.colors.onSurface
-            )
-            .padding(4.dp)
-    ) {
-        content()
-    }
-}
 
 @Composable
 fun ListItemCard(modifier: Modifier = Modifier, content: @Composable () -> Unit){
@@ -62,96 +47,8 @@ fun ListItemCard(modifier: Modifier = Modifier, content: @Composable () -> Unit)
         modifier
             .fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
-        elevation = 8.dp) {
+        elevation = 6.dp) {
         content()
-    }
-}
-
-@Composable
-fun RoundIconButton(
-    modifier: Modifier = Modifier,
-    imageVector: ImageVector,
-    description: String = "",
-    onClick: () -> Unit
-) {
-    Box(
-        modifier
-            .size(50.dp)
-            .clickable(
-                interactionSource = MutableInteractionSource(),
-                indication = rememberRipple(
-                    color = MaterialTheme.colors.secondary.copy(alpha = 0.3F)
-                ),
-                onClick = onClick
-            )
-            .clip(shape = CircleShape)
-            .background(color = MaterialTheme.colors.primary),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(imageVector = imageVector,
-            contentDescription = description,
-            tint = MaterialTheme.colors.onSecondary)
-    }
-}
-
-@Composable
-fun RoundIconButton(
-    modifier: Modifier = Modifier,
-    painter: Painter,
-    description: String = "",
-    onClick: () -> Unit
-) {
-    Box(
-        modifier
-            .size(50.dp)
-            .clickable(
-                interactionSource = MutableInteractionSource(),
-                indication = rememberRipple(
-                    bounded = false,
-                    color = MaterialTheme.colors.secondary.copy(alpha = 0.3F)
-                ),
-                onClick = onClick
-            )
-            .clip(shape = CircleShape)
-            .background(color = MaterialTheme.colors.primary),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(painter = painter,
-            contentDescription = description,
-            tint = MaterialTheme.colors.onSecondary)
-    }
-}
-
-@Composable
-fun OvalIconButton(
-    modifier: Modifier = Modifier,
-    caption: String,
-    imageVector: ImageVector,
-    description: String = "",
-    onClick: () -> Unit
-){
-    Box(
-        modifier
-            .height(50.dp)
-            .clickable(
-                interactionSource = MutableInteractionSource(),
-                indication = rememberRipple(
-                    color = MaterialTheme.colors.secondary.copy(alpha = 0.3F)
-                ),
-                onClick = onClick
-            )
-            .clip(shape = RoundedCornerShape(50))
-            .background(color = MaterialTheme.colors.primary),
-        contentAlignment = Alignment.Center
-    ) {
-        Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp),
-            verticalAlignment = Alignment.CenterVertically) {
-            Icon(imageVector = imageVector,
-                contentDescription = description,
-                tint = MaterialTheme.colors.onSecondary)
-            Spacer(modifier = Modifier.size(2.dp))
-            Text(text = caption, style = MaterialTheme.typography.button)
-        }
     }
 }
 
@@ -345,48 +242,147 @@ fun RoundIconButton(onClick: () -> Unit, imageVector: ImageVector, desc: String)
     }
 }
 
+@Composable
+fun ColorScale(modifier: Modifier, hue: Float, onChange: (Float) -> Unit) {
+    val spectre = remember {Brush.verticalGradient(
+        colors = listOf(
+            Color(0xFFFF0000),
+            Color(0xFFFFFF00), Color(0xFF00FF00), Color(0xFF00FFFF),
+            Color(0xFF0000FF), Color(0xFFFF00FF), Color(0xFFFF0000)
+        )
+    )}
+    Canvas(modifier = modifier
+        .pointerInput(Unit) {
+            forEachGesture {
+                awaitPointerEventScope {
+                    val down = awaitFirstDown()
+                    onChange(360f * down.position.y / size.height)
+                    drag(down.id) { change ->
+                        change.consumeAllChanges()
+                        onChange(360f * change.position.y / size.height)
+                    }
+                }
+            }
+        }) {
+        drawRect(brush = spectre)
+        drawRect(color = Color.Black,
+            topLeft = Offset(0f, this.size.height * hue / 360f - 15f),
+            size = Size(this.size.width, 30f),
+            style = Stroke(width = 5f)
+        )}
+}
+
+@Composable
+fun SVBox(modifier: Modifier = Modifier,
+          hue: Float,
+          s: Float,
+          v: Float,
+          onChange: (s: Float, v: Float) -> Unit) {
+    val bwBrush = remember { Brush.verticalGradient(listOf(Color.White, Color.Black)) }
+    val colorBrush = remember(hue) {
+        val rgb = Color(android.graphics.Color.HSVToColor(floatArrayOf(hue, 1f, 1f)))
+        Brush.horizontalGradient(listOf(Color.White, rgb))
+    }
+    Canvas(modifier = modifier.pointerInput(Unit){
+        forEachGesture {
+            awaitPointerEventScope {
+                val down = awaitFirstDown()
+                onChange(1f / size.width * down.position.x,
+                    1f - 1f / size.height * down.position.y)
+                drag(down.id) { change ->
+                    onChange(1f / size.width * change.position.x,
+                        1f - 1f / size.height * change.position.y)
+                }
+            }
+        }
+    }) {
+        drawRect(bwBrush)
+        drawRect(colorBrush, blendMode = BlendMode.Modulate)
+        val center = Offset(x = s * this.size.width, y = (1f - v) * this.size.height)
+        drawCircle(color = Color.Black,
+            radius = 30f,
+            center = center,
+            style = Stroke(width = 5f))
+        drawCircle(color = Color.White,
+            radius = 25f,
+            center = center,
+            style = Stroke(width = 5f))
+    }
+}
+
+@Composable
+fun ColorPicker(modifier: Modifier = Modifier, color: Color, onChange: (Color) -> Unit) {
+    var hue by remember(color) { mutableStateOf(0f)}
+    var s by remember(color) { mutableStateOf(0f)}
+    var v by remember(color) { mutableStateOf(0f)}
+    LaunchedEffect(key1 = color) {
+        val hsv = floatArrayOf(0f, 0f, 0f)
+        android.graphics.Color.RGBToHSV(
+            (color.red * 255).toInt(),
+            (color.green * 255).toInt(),
+            (color.blue * 255).toInt(),
+            hsv
+        )
+        hue = hsv[0]
+        s = hsv[1]
+        v = hsv[2]
+    }
+    Column {
+        Row(modifier = modifier) {
+            Box(modifier = Modifier.weight(0.8f)) {
+                SVBox(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp),
+                    hue = hue,
+                    s = s,
+                    v = v,
+                    onChange = {ns, nv ->
+                        s = ns
+                        v = nv
+                        onChange(onColorDataChanged(hue, s, v))})
+            }
+            Spacer(modifier = Modifier.size(8.dp))
+            Box(modifier = Modifier.weight(0.2f)) {
+                ColorScale(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp),
+                    hue = hue,
+                    onChange = {hue = it; onChange(onColorDataChanged(hue, s, v))})
+            }
+        }
+        Spacer(modifier = Modifier.size(8.dp))
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp)
+            .background(color = Color(android.graphics.Color.HSVToColor(floatArrayOf(hue, s, v)))))
+    }
+}
+
+internal fun onColorDataChanged(h: Float, s: Float, v: Float): Color {
+    return Color(android.graphics.Color.HSVToColor(floatArrayOf(h, s, v)))
+}
+
+//R 255 - 255 -   0 -   0 -   0 - 255 - 255
+//G   0 - 255 - 255 - 255 -   0 -   0 -   0
+//B   0 -   0 -   0 - 255 - 255 - 255 -   0
+
 //---v2---design---end
 
 
 
-@Preview(uiMode = UI_MODE_NIGHT_YES, showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
 @Preview(showBackground = true)
 @Composable
-fun BlockPreview() {
+fun ColorScalePreview() {
     QuietColorsTimerTheme {
         Surface(color = MaterialTheme.colors.background) {
-            ListBlock {
-                Text(text = "Some Text")
-                Spacer(modifier = Modifier.size(4.dp))
-                Button(onClick = { }) {
-                    Text(text = "Some Button")
-                }
+            Box(modifier = Modifier
+                .width(40.dp)
+                .height(200.dp)) {
+                ColorScale(modifier = Modifier, hue = 120f, onChange = {})
             }
         }
     }
 }
-
-@Preview(uiMode = UI_MODE_NIGHT_YES, showBackground = true)
-@Preview(showBackground = true)
-@Composable
-fun RoundButtonPreview() {
-    QuietColorsTimerTheme {
-        Surface(color = MaterialTheme.colors.background) {
-            RoundIconButton(imageVector = Icons.Default.Build) {}
-        }
-    }
-}
-
-@Preview(uiMode = UI_MODE_NIGHT_YES, showBackground = true)
-@Preview(showBackground = true)
-@Composable
-fun OvalButtonPreview() {
-    QuietColorsTimerTheme {
-        Surface(color = MaterialTheme.colors.background) {
-            OvalIconButton(caption = "Button", imageVector = Icons.Default.Build) {}
-        }
-    }
-}
-
 
 

@@ -13,6 +13,7 @@ class Repo(private val dao: TimerDAO){
     //fun getAllTimersWithIntervals() = dao.getAllTimersWithIntervals()
     fun getAllTimersWithIntervals(filter: String) = dao.getAllTimersWithIntervals(filter)
     suspend fun getTimerWithIntervals(id: Int) = dao.getTimerWithIntervals(id)
+    fun getTimerWithIntervalsFlow(id: Int) = dao.getTimerWithIntervalsFlow(id)
     suspend fun updateTimer(timer: InTimer) = dao.updateTimer(timer)
-    fun getIntervals(id: Int) = dao.getIntervals(id)
+    //fun getIntervals(id: Int) = dao.getIntervals(id)
 }

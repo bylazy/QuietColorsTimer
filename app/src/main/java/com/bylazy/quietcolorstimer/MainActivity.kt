@@ -3,6 +3,7 @@ package com.bylazy.quietcolorstimer
 import android.content.Context
 import android.media.MediaPlayer
 import android.os.*
+import android.util.Log
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -48,16 +49,18 @@ class MainActivity : ComponentActivity() {
                         composable("timer/{id}",
                             arguments = listOf(navArgument("id"){type = NavType.IntType})){
                             val intervalsViewModel = viewModel<IntervalsViewModel>()
-                            IntervalsScreen(intervalsViewModel = intervalsViewModel,
+                            IntervalScreen(intervalsViewModel = intervalsViewModel,
                                 navController = navController)
                         }
                         composable("start/{id}",
                             arguments = listOf(navArgument("id"){type = NavType.IntType})){
                             val timerViewModel = viewModel<TimerViewModel>()
-                            TimerScreen(viewModel = timerViewModel,
+                            TimerScr(viewModel = timerViewModel,
                                 navController = navController,
                                 keepScreenOn = { keepScreenOn(it) },
-                                adjustBrightness = { adjustBrightness(it) })
+                                adjustBrightness = { adjustBrightness(it) },
+                                playSound = {playSound()},
+                                vibrate = {vibrate()})
                         }
                     }
                 }
@@ -89,6 +92,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun adjustBrightness(type: IntervalType){
+        Log.d("adjust", type.toString())
         when (type) {
             IntervalType.BRIGHT -> {
                 val windowAttributes = window.attributes

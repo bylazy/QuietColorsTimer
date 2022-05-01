@@ -7,7 +7,7 @@ import com.bylazy.quietcolorstimer.db.Interval
 import java.time.Duration
 
 const val MAX_INTERVAL_NAME_LENGTH = 12
-
+const val MAX_TIMER_NAME_LENGTH = 25
 const val MIN_INTERVAL_DURATION = 5
 const val MAX_INTERVAL_DURATION = 600
 
@@ -32,6 +32,14 @@ val COOLDOWN_INTERVAL = Interval(timerId = 0,
     position = -1,
     name = "Get Ready!",
     duration = 5,
+    color = Color.Black.string(),
+    signal = IntervalSignal.SILENT,
+    type = IntervalType.DEFAULT)
+
+val FINISH_INTERVAL = Interval(timerId = 0,
+    position = -1,
+    name = "Done!",
+    duration = 1,
     color = Color.Black.string(),
     signal = IntervalSignal.SILENT,
     type = IntervalType.DEFAULT)
@@ -103,6 +111,7 @@ data class Event(val interval: String,
                  val next: String,
                  val timer: String,
                  val type: IntervalType,
+                 val sound: IntervalSignal,
                  val duration: Int,
                  val overallDuration: Int,
                  val currentSecondsLeft: Int,
@@ -115,6 +124,7 @@ val START_EVENT = Event(interval = "Get Ready!",
     next = "",
     timer = "",
     type = IntervalType.DEFAULT,
+    sound = IntervalSignal.SILENT,
     duration = 5,
     overallDuration = 5,
     currentSecondsLeft = 0,
@@ -127,6 +137,7 @@ val FINISH_EVENT = Event(interval = "Done!",
     next = "",
     timer = "",
     type = IntervalType.DEFAULT,
+    sound = IntervalSignal.SILENT,
     duration = 0,
     overallDuration = 0,
     currentSecondsLeft = 0,
@@ -137,13 +148,13 @@ val FINISH_EVENT = Event(interval = "Done!",
 
 fun Color.shaded(): Color {
     return if (this.luminance()<=0.5)
-        Color((this.red+0.15F).coerceAtMost(1F),
-            (this.green+0.15F).coerceAtMost(1F),
-            (this.blue+0.15F).coerceAtMost(1F))
+        Color((this.red+0.1F).coerceAtMost(1F),
+            (this.green+0.1F).coerceAtMost(1F),
+            (this.blue+0.1F).coerceAtMost(1F))
     else
-        Color((this.red-0.15F).coerceAtLeast(0F),
-            (this.green-0.15F).coerceAtLeast(0F),
-            (this.blue-0.15F).coerceAtLeast(0F))
+        Color((this.red-0.1F).coerceAtLeast(0F),
+            (this.green-0.1F).coerceAtLeast(0F),
+            (this.blue-0.1F).coerceAtLeast(0F))
 }
 
 fun Int.durationText() = if (this < 100) this.toString().padStart(2, '0')

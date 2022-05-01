@@ -116,7 +116,7 @@ fun HomeScreenContent(
                         onSelect = viewModel::selectTimer
                     )
                 }
-                Spacer(modifier = Modifier.size(2.dp))
+                Spacer(modifier = Modifier.size(4.dp))
             }
             item {
                 Spacer(modifier = Modifier.size(40.dp))

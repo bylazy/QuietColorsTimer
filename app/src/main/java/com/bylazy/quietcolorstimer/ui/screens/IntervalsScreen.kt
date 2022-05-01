@@ -2,10 +2,9 @@ package com.bylazy.quietcolorstimer.ui.screens
 
 import android.content.res.Configuration
 import androidx.compose.animation.*
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -23,9 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.fontResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.Font
@@ -36,7 +33,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.bylazy.quietcolorstimer.R
 import com.bylazy.quietcolorstimer.data.*
@@ -44,688 +40,368 @@ import com.bylazy.quietcolorstimer.db.InTimer
 import com.bylazy.quietcolorstimer.db.Interval
 import com.bylazy.quietcolorstimer.db.test_timer_1
 import com.bylazy.quietcolorstimer.db.test_timer_1_intervals
-import com.bylazy.quietcolorstimer.ui.animlazylist.AnimatedLazyColumn
-import com.bylazy.quietcolorstimer.ui.animlazylist.AnimatedLazyListItem
 import com.bylazy.quietcolorstimer.ui.theme.QuietColorsTimerTheme
 import com.bylazy.quietcolorstimer.ui.utils.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
+//---v2-design---
+
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun IntervalsScreen(intervalsViewModel: IntervalsViewModel, navController: NavController) {
+fun IntervalScreen(
+    intervalsViewModel: IntervalsViewModel,
+    navController: NavController
+) {
     val scope = rememberCoroutineScope()
-    val listState = rememberLazyListState()
-
-    val intervals by intervalsViewModel.intervalsState.collectAsState(listOf())
+    var isEdit by remember { mutableStateOf(false) }
+    val dummyState by intervalsViewModel.state.collectAsState(initial = null)
     val timer by intervalsViewModel.timer
-    var backPressed by remember { mutableStateOf(false) }
-    val currentInterval by intervalsViewModel.currentInterval
-    val scrollState = intervalsViewModel.scrollToPos.collectAsState()
-
-    LaunchedEffect(scrollState.value) {
-        //listState.animateScrollToItem(scrollState.value)
-        delay(100) //TODO - check index + refactor
-        listState.animateScrollToItem(scrollState.value + 1, scrollOffset = 0)
-    }
-
+    val intervals by intervalsViewModel.intervalsState.collectAsState()
+    val selectedInterval by intervalsViewModel.currentInterval
+    val scrollTo by intervalsViewModel.scrollToPos.collectAsState(initial = 0)
     Scaffold(
-        topBar = {},
-        bottomBar = {
-            BottomAppBar(cutoutShape = CircleShape) {
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(imageVector = Icons.Default.Close, contentDescription = "Exit")
-                }
-                Spacer(
-                    modifier = Modifier
-                        .size(4.dp)
-                        .weight(1f)
-                )
-                IconButton(onClick = {
-                    scope.launch {
-                        backPressed = true
-                        intervalsViewModel.doneAll()
-                        navController.popBackStack()
-                    }
-                }, enabled = !backPressed) {
-                    Icon(imageVector = Icons.Default.Done, contentDescription = "Done")
-                }
-            }
+        topBar = {
+            TopBar(name = timer.name,
+                type = timer.type, isEdit = isEdit, onEdit = { isEdit = !isEdit })
         },
-        floatingActionButton = {
-            FloatingActionButton(onClick = {
-                intervalsViewModel.addInterval()
+        bottomBar = {
+            BottomBar(onOk = {
                 scope.launch {
-                    listState.animateScrollToItem(intervals.lastIndex)
-                    //TODO - Scrolling
+                    intervalsViewModel.doneAll()
+                    navController.popBackStack()
                 }
-            }) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
-            }
+            },
+                onCancel = { navController.popBackStack() })
         },
         floatingActionButtonPosition = FabPosition.Center,
-        isFloatingActionButtonDocked = true
-    ) {
-        Column(modifier = Modifier.padding(it)) {
-            AnimatedLazyColumn(state = listState, items = buildList {
-                add(AnimatedLazyListItem(key = "timer", value = "timer") {
-                    InListTimerEditor(timer = timer, onOk = intervalsViewModel::updateTimer)
-                })
-                addAll(intervals.map { interval ->
-                    AnimatedLazyListItem(key = interval.id.toString(), value = interval) {
-                        IntervalRow(
-                            interval = interval,
-                            currentInterval = currentInterval,
-                            onCopy = intervalsViewModel::copyInterval,
-                            onUp = intervalsViewModel::upInterval,
-                            onDown = intervalsViewModel::downInterval,
-                            onDelete = intervalsViewModel::deleteInterval,
-                            onCancel = intervalsViewModel::cancelEdit,
-                            onDone = intervalsViewModel::doneEdit,
-                            onSelect = intervalsViewModel::selectInterval
-                        )
-                    }
-                })
-            })
-        }
-    }
-}
-
-@OptIn(ExperimentalAnimationApi::class)
-@Composable
-fun InListTimerEditor(
-    timer: InTimer,
-    onOk: (InTimer) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-    var name by remember { mutableStateOf(timer.name) }
-    var desc by remember { mutableStateOf(timer.description) }
-    var type by remember { mutableStateOf(timer.type) }
-    val focusRequester = FocusRequester.Default
-    val focusManager = LocalFocusManager.current
-    Row {
-        ListItemCard {
-            Column {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier.size(50.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = when (timer.type) {
-                                TimerType.WORKOUT -> painterResource(id = R.drawable.ic_type_workout)
-                                TimerType.YOGA -> painterResource(id = R.drawable.ic_type_yoga)
-                                TimerType.COOK -> painterResource(id = R.drawable.ic_type_cook)
-                                else -> painterResource(id = R.drawable.ic_type_default)
-                            },
-                            contentDescription = "Timer Icon"
-                        )
-                    }
-                    Spacer(modifier = Modifier.size(4.dp))
-                    Text(text = timer.name, style = MaterialTheme.typography.h5)
-                    Spacer(
-                        modifier = Modifier
-                            .size(4.dp)
-                            .weight(1f)
-                    )
-                    FadingBlock(visible = !expanded) {
-                        RoundIconButton(imageVector = Icons.Default.Edit) {
-                            expanded = true
-                        }
-                    }
-                }
-                ExpandableBlock(expanded = expanded) {
-                    Column(modifier = Modifier.padding(top = 12.dp)) {
-                        OutlinedTextField(
-                            value = name,
-                            onValueChange = { name = it.take(25) }, //TODO - const?
-                            modifier = Modifier.fillMaxWidth(),
-                            label = { Text(text = "Short Timer Name:") },
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                            keyboardActions = KeyboardActions(onNext = { focusRequester.requestFocus() })
-                        )
-                        Spacer(modifier = Modifier.size(4.dp))
-                        OutlinedTextField(
-                            value = desc,
-                            onValueChange = { desc = it },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .focusRequester(focusRequester),
-                            label = { Text(text = "Timer Description:") },
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
-                        )
-                        Spacer(modifier = Modifier.size(4.dp))
-                        Row {
-                            Column(modifier = Modifier.weight(0.5f)) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Start
-                                ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_type_workout),
-                                        contentDescription = "Workout"
-                                    )
-                                    Spacer(modifier = Modifier.size(2.dp))
-                                    RadioButton(
-                                        selected = type == TimerType.WORKOUT,
-                                        onClick = { type = TimerType.WORKOUT })
-                                    Spacer(modifier = Modifier.size(2.dp))
-                                    Text(text = "Workout")
-                                }
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Start
-                                ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_type_yoga),
-                                        contentDescription = "Yoga"
-                                    )
-                                    Spacer(modifier = Modifier.size(2.dp))
-                                    RadioButton(
-                                        selected = type == TimerType.YOGA,
-                                        onClick = { type = TimerType.YOGA })
-                                    Spacer(modifier = Modifier.size(2.dp))
-                                    Text(text = "Yoga")
-                                }
-                            }
-                            Column(modifier = Modifier.weight(0.5f)) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Start
-                                ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_type_cook),
-                                        contentDescription = "Cooking"
-                                    )
-                                    Spacer(modifier = Modifier.size(2.dp))
-                                    RadioButton(
-                                        selected = type == TimerType.COOK,
-                                        onClick = { type = TimerType.COOK })
-                                    Spacer(modifier = Modifier.size(2.dp))
-                                    Text(text = "Cook")
-                                }
-                                Spacer(modifier = Modifier.size(4.dp))
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Start
-                                ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_type_default),
-                                        contentDescription = "Other"
-                                    )
-                                    Spacer(modifier = Modifier.size(2.dp))
-                                    RadioButton(
-                                        selected = type == TimerType.OTHER,
-                                        onClick = { type = TimerType.OTHER })
-                                    Spacer(modifier = Modifier.size(2.dp))
-                                    Text(text = "Other")
-                                }
-                            }
-                        }
-                        Spacer(modifier = Modifier.size(4.dp))
-                        Divider()
-                        Spacer(modifier = Modifier.size(4.dp))
-                        Row {
-                            Spacer(modifier = Modifier.size(12.dp))
-                            OvalIconButton(
-                                caption = "Cancel",
-                                imageVector = Icons.Default.Close
-                            ) {
-                                expanded = false
-                            }
-                            Spacer(
-                                modifier = Modifier
-                                    .size(12.dp)
-                                    .weight(1f)
-                            )
-                            OvalIconButton(
-                                caption = "OK",
-                                imageVector = Icons.Default.Done
-                            ) {
-                                onOk(timer.copy(name = name, description = desc, type = type))
-                                expanded = false
-                            }
-                            Spacer(modifier = Modifier.size(12.dp))
-                        }
-                    }
-                }
+        isFloatingActionButtonDocked = true,
+        floatingActionButton = { FloatingActionButton(onClick = {
+            intervalsViewModel.addInterval()
+        }) {
+            Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
+        }}
+    )
+    { paddingValues ->
+        FadingBlock(visible = isEdit) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                TimerEditor(timer = timer,
+                    onCancel = { isEdit = false },
+                    onOk = { intervalsViewModel.updateTimer(it); isEdit = false })
             }
         }
+        FadingBlock(visible = !isEdit) {
+            IntervalsList(
+                intervals = intervals,
+                selectedInterval = selectedInterval,
+                scrollTo = scrollTo,
+                onDelete = intervalsViewModel::deleteInterval,
+                onDone = intervalsViewModel::doneEdit,
+                onCancel = intervalsViewModel::cancelEdit,
+                onCopy = intervalsViewModel::copyInterval,
+                onUp = intervalsViewModel::upInterval,
+                onDown = intervalsViewModel::downInterval,
+                onSelect = intervalsViewModel::selectInterval,
+                paddingValues = paddingValues
+            )
+        }
     }
 }
 
-@ExperimentalAnimationApi
 @Composable
-fun IntervalRow(
-    interval: Interval,
-    currentInterval: Interval?,
+fun TopBar(name: String, type: TimerType, isEdit: Boolean, onEdit: () -> Unit) {
+    TopAppBar {
+        Spacer(modifier = Modifier.size(8.dp))
+        Icon(
+            painter = painterResource(
+                id = when (type) {
+                    TimerType.WORKOUT -> R.drawable.ic_big_workout
+                    TimerType.YOGA -> R.drawable.ic_big_yoga
+                    TimerType.COOK -> R.drawable.ic_big_cook
+                    else -> R.drawable.ic_big_common
+                }
+            ),
+            contentDescription = "Timer type",
+            modifier = Modifier.size(40.dp)
+        )
+        Spacer(modifier = Modifier.size(8.dp))
+        Text(text = name, style = MaterialTheme.typography.h6)
+        Spacer(
+            modifier = Modifier
+                .size(8.dp)
+                .weight(1f)
+        )
+        IconButton(onClick = { onEdit() }) {
+            Icon(
+                imageVector = when (isEdit) {
+                    true -> Icons.Default.Close
+                    false -> Icons.Default.Edit
+                }, contentDescription = "Edit"
+            )
+        }
+        Spacer(modifier = Modifier.size(8.dp))
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun IntervalsList(
+    intervals: List<Interval>,
+    selectedInterval: Interval?,
+    scrollTo: Int = 0,
+    onDelete: (Interval) -> Unit,
+    onDone: (Interval) -> Unit,
+    onCancel: () -> Unit,
     onCopy: (Interval) -> Unit,
     onUp: (Interval) -> Unit,
     onDown: (Interval) -> Unit,
-    onDelete: (Interval) -> Unit,
+    onSelect: (Interval) -> Unit,
+    paddingValues: PaddingValues
+) {
+    val state = rememberLazyListState()
+    LaunchedEffect(key1 = scrollTo) {
+        state.animateScrollToItem(scrollTo)
+    }
+    LazyColumn(state = state, contentPadding = paddingValues) {
+        items(intervals, key = { item -> item.id }) { interval ->
+            Row(modifier = Modifier.animateItemPlacement()) {
+                IntervalListItem(
+                    interval = interval,
+                    selected = interval == selectedInterval,
+                    onDelete = onDelete,
+                    onDone = onDone,
+                    onCancel = onCancel,
+                    onCopy = onCopy,
+                    onUp = onUp,
+                    onDown = onDown,
+                    onSelect = onSelect
+                )
+            }
+            Spacer(modifier = Modifier.size(4.dp))
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun TimerEditor(
+    timer: InTimer,
     onCancel: () -> Unit,
+    onOk: (InTimer) -> Unit
+) {
+    var name by remember { mutableStateOf(timer.name) }
+    var desc by remember { mutableStateOf(timer.description) }
+    var type by remember { mutableStateOf(timer.type) }
+    var expanded by remember { mutableStateOf(false) }
+    val focusRequester = FocusRequester.Default
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        TextField(
+            value = name,
+            onValueChange = { name = it.take(MAX_TIMER_NAME_LENGTH) },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(text = "Name:") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { focusRequester.requestFocus() })
+        )
+        Spacer(modifier = Modifier.size(8.dp))
+        Divider()
+        Spacer(modifier = Modifier.size(8.dp))
+        TextField(
+            value = desc,
+            onValueChange = { desc = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester),
+            label = { Text(text = "Description:") }
+        )
+        Spacer(modifier = Modifier.size(8.dp))
+        Divider()
+        Spacer(modifier = Modifier.size(8.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(text = "Type / Icon:")
+            Spacer(
+                modifier = Modifier
+                    .size(8.dp)
+                    .weight(1f)
+            )
+            ExposedDropdownMenuBox(expanded = expanded,
+                onExpandedChange = { expanded = !expanded }) {
+                TextField(value = when (type) {
+                    TimerType.WORKOUT -> "Workout / Training"
+                    TimerType.YOGA -> "Yoga / Relax"
+                    TimerType.COOK -> "Cooking"
+                    else -> "Other"
+                },
+                    onValueChange = {},
+                    readOnly = true,
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(
+                                id = when (type) {
+                                    TimerType.WORKOUT -> R.drawable.ic_type_workout
+                                    TimerType.YOGA -> R.drawable.ic_type_yoga
+                                    TimerType.COOK -> R.drawable.ic_type_cook
+                                    else -> R.drawable.ic_type_default
+                                }
+                            ),
+                            contentDescription = "Timer type"
+                        )
+                    }, trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(
+                            expanded = expanded
+                        )
+                    })
+                ExposedDropdownMenu(expanded = expanded,
+                    onDismissRequest = { expanded = false }) {
+                    DropdownMenuItem(onClick = { type = TimerType.WORKOUT; expanded = false }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_big_workout),
+                            contentDescription = "Workout",
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Text(
+                            text = "Workout / Training",
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        )
+                    }
+                    DropdownMenuItem(onClick = { type = TimerType.YOGA; expanded = false }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_big_yoga),
+                            contentDescription = "Yoga",
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Text(
+                            text = "Yoga / Relax",
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        )
+                    }
+                    DropdownMenuItem(onClick = { type = TimerType.COOK; expanded = false }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_big_cook),
+                            contentDescription = "Cooking",
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Text(
+                            text = "Cooking",
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        )
+                    }
+                    DropdownMenuItem(onClick = { type = TimerType.OTHER; expanded = false }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_big_common),
+                            contentDescription = "Other",
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Text(
+                            text = "Other",
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        )
+                    }
+                }
+            }
+        }
+        Spacer(modifier = Modifier.size(8.dp))
+        Divider()
+        Spacer(modifier = Modifier.size(8.dp))
+        Row {
+            FilledIconButton(
+                modifier = Modifier,
+                onClick = onCancel,
+                text = "Cancel",
+                imageVector = Icons.Default.Close
+            )
+            Spacer(
+                modifier = Modifier
+                    .size(8.dp)
+                    .weight(1f)
+            )
+            FilledIconButton(
+                modifier = Modifier,
+                onClick = { onOk(timer.copy(name = name, description = desc, type = type)) },
+                text = "OK",
+                imageVector = Icons.Default.Done
+            )
+        }
+    }
+}
+
+@Composable
+fun BottomBar(
+    onOk: () -> Unit,
+    onCancel: () -> Unit
+) {
+    BottomAppBar(cutoutShape = CircleShape) {
+        Spacer(modifier = Modifier.size(8.dp))
+        IconButton(onClick = onCancel) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Cancel"
+            )
+        }
+        Spacer(
+            modifier = Modifier
+                .size(8.dp)
+                .weight(1f)
+        )
+        IconButton(onClick = onOk) {
+            Icon(
+                imageVector = Icons.Default.Done,
+                contentDescription = "Done"
+            )
+        }
+        Spacer(modifier = Modifier.size(8.dp))
+    }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun IntervalListItem(
+    interval: Interval,
+    selected: Boolean,
+    onDelete: (Interval) -> Unit,
     onDone: (Interval) -> Unit,
+    onCancel: () -> Unit,
+    onCopy: (Interval) -> Unit,
+    onUp: (Interval) -> Unit,
+    onDown: (Interval) -> Unit,
     onSelect: (Interval) -> Unit
 ) {
     ListItemCard {
         Column {
             IntervalRowTop(
                 interval = interval,
-                currentInterval = currentInterval,
-                onSelect = onSelect,
+                selected = selected,
                 onCopy = onCopy,
                 onUp = onUp,
-                onDown = onDown
+                onDown = onDown,
+                onSelect = onSelect
             )
-            ExpandableBlock(expanded = interval == currentInterval) {
-                IntervalEditor(
+            ExpandableBlock(expanded = selected) {
+                IntervalDetails(
                     interval = interval,
                     onDelete = onDelete,
-                    onCancel = onCancel,
-                    onDone = onDone
+                    onDone = onDone,
+                    onCancel = onCancel
                 )
             }
         }
-    }
+    }    
 }
-
-@ExperimentalAnimationApi
-@Composable
-fun IntervalRowTop(
-    interval: Interval,
-    currentInterval: Interval?,
-    onCopy: (Interval) -> Unit,
-    onUp: (Interval) -> Unit,
-    onDown: (Interval) -> Unit,
-    onSelect: (Interval) -> Unit
-) {
-    Row(
-        modifier = Modifier.clickable { onSelect(interval) },
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        DurationBox(interval = interval)
-        Spacer(modifier = Modifier.size(4.dp))
-        Icon(
-            painter = painterResource(
-                id = when (interval.type) {
-                    IntervalType.BRIGHT -> R.drawable.ic_int_type_bright
-                    IntervalType.DARK -> R.drawable.ic_int_type_dark
-                    else -> R.drawable.ic_int_type_default
-                }
-            ),
-            contentDescription = "Backlit mode"
-        )
-        Spacer(modifier = Modifier.size(4.dp))
-        Text(text = interval.name, style = MaterialTheme.typography.h6)
-        Spacer(
-            modifier = Modifier
-                .size(4.dp)
-                .weight(1f)
-        )
-        FadingBlock(visible = currentInterval != interval) {
-            IntervalRowButtons(
-                interval = interval,
-                onCopy = onCopy,
-                onUp = onUp,
-                onDown = onDown
-            )
-        }
-    }
-}
-
-@Composable
-fun DurationBox(interval: Interval) {
-    Box(
-        modifier = Modifier
-            .background(
-                color = interval.color.color(),
-                shape = RoundedCornerShape(4.dp)
-            )
-            .size(50.dp), contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = interval.duration.durationText(), style = MaterialTheme.typography.button,
-            color = if (interval.color.color().luminance() >= 0.5f) Color.Black else Color.White
-        )
-    }
-}
-
-@Composable
-fun IntervalRowButtons(
-    interval: Interval,
-    onCopy: (Interval) -> Unit,
-    onUp: (Interval) -> Unit,
-    onDown: (Interval) -> Unit,
-) {
-    Row {
-        RoundIconButton(painter = painterResource(id = R.drawable.ic_copy)) {
-            onCopy(interval)
-        }
-        Spacer(modifier = Modifier.size(4.dp))
-        RoundIconButton(imageVector = Icons.Default.KeyboardArrowUp) {
-            onUp(interval)
-        }
-        Spacer(modifier = Modifier.size(4.dp))
-        RoundIconButton(imageVector = Icons.Default.KeyboardArrowDown) {
-            onDown(interval)
-        }
-    }
-}
-
-@ExperimentalAnimationApi
-@Composable
-fun IntervalEditor(
-    interval: Interval,
-    onDelete: (Interval) -> Unit,
-    onCancel: () -> Unit,
-    onDone: (Interval) -> Unit
-) {
-    val focusManager = LocalFocusManager.current
-    var intervalName by remember { mutableStateOf(interval.name) }
-    var intervalType by remember { mutableStateOf(interval.type) }
-    var intervalSignal by remember { mutableStateOf(interval.signal) }
-    var intervalColor by remember { mutableStateOf(interval.color.color()) }
-    var intervalDuration by remember { mutableStateOf(interval.duration) }
-    //val intervalDuration by remember { mutableStateOf(TextFieldValue(interval.duration.toString())) }
-    Column {
-        OutlinedTextField(
-            value = intervalName,
-            modifier = Modifier
-                .padding(top = 12.dp)
-                .fillMaxWidth(),
-            onValueChange = { intervalName = it.take(MAX_INTERVAL_NAME_LENGTH) },
-            singleLine = true,
-            label = { Text(text = "Short Interval name (up to 12 symbols):") },
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
-        )
-        Spacer(modifier = Modifier.size(4.dp))
-        Divider()
-        Spacer(modifier = Modifier.size(4.dp))
-        Text(text = "Select Interval duration in seconds (5 to 600):")
-        Spacer(modifier = Modifier.size(4.dp))
-        DurationSelector(initial = interval.duration,
-            onChange = { intervalDuration = it })
-        Spacer(modifier = Modifier.size(4.dp))
-        Divider()
-        Spacer(modifier = Modifier.size(4.dp))
-        Text(text = "Backlight Mode")
-        Spacer(modifier = Modifier.size(4.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            RadioButton(selected = intervalType == IntervalType.BRIGHT,
-                onClick = { intervalType = IntervalType.BRIGHT })
-            Spacer(modifier = Modifier.size(4.dp))
-            Icon(
-                painter = painterResource(id = R.drawable.ic_int_type_bright),
-                contentDescription = "Bright"
-            )
-            Spacer(modifier = Modifier.size(4.dp))
-            Text(text = "Bright")
-            Spacer(
-                modifier = Modifier
-                    .size(4.dp)
-                    .weight(1f)
-            )
-            RadioButton(selected = intervalType == IntervalType.DARK,
-                onClick = { intervalType = IntervalType.DARK })
-            Spacer(modifier = Modifier.size(4.dp))
-            Icon(
-                painter = painterResource(id = R.drawable.ic_int_type_dark),
-                contentDescription = "Dark"
-            )
-            Spacer(modifier = Modifier.size(4.dp))
-            Text(text = "Dark")
-            Spacer(
-                modifier = Modifier
-                    .size(4.dp)
-                    .weight(1f)
-            )
-            RadioButton(selected = intervalType == IntervalType.DEFAULT,
-                onClick = { intervalType = IntervalType.DEFAULT })
-            Spacer(modifier = Modifier.size(4.dp))
-            Icon(
-                painter = painterResource(id = R.drawable.ic_int_type_default),
-                contentDescription = "Default"
-            )
-            Spacer(modifier = Modifier.size(4.dp))
-            Text(text = "Default")
-        }
-        Spacer(modifier = Modifier.size(4.dp))
-        Text(text = "Sound Settings")
-        Spacer(modifier = Modifier.size(4.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            RadioButton(selected = intervalSignal == IntervalSignal.SILENT,
-                onClick = { intervalSignal = IntervalSignal.SILENT })
-            Spacer(modifier = Modifier.size(4.dp))
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = "Silent"
-            )
-            Spacer(modifier = Modifier.size(4.dp))
-            Text(text = "Silent")
-            Spacer(
-                modifier = Modifier
-                    .size(4.dp)
-                    .weight(1f)
-            )
-            RadioButton(selected = intervalSignal == IntervalSignal.SOUND,
-                onClick = { intervalSignal = IntervalSignal.SOUND })
-            Spacer(modifier = Modifier.size(4.dp))
-            Icon(
-                imageVector = Icons.Default.Notifications,
-                contentDescription = "Sound"
-            )
-            Spacer(modifier = Modifier.size(4.dp))
-            Text(text = "Sound")
-            Spacer(
-                modifier = Modifier
-                    .size(4.dp)
-                    .weight(1f)
-            )
-            RadioButton(selected = intervalSignal == IntervalSignal.VIBRATION,
-                onClick = { intervalSignal = IntervalSignal.VIBRATION })
-            Spacer(modifier = Modifier.size(4.dp))
-            Icon(
-                imageVector = Icons.Default.Warning, //TODO change icons
-                contentDescription = "Vibration"
-            )
-            Spacer(modifier = Modifier.size(4.dp))
-            Text(text = "Vibration")
-        }
-        Spacer(modifier = Modifier.size(4.dp))
-        Divider()
-        Spacer(modifier = Modifier.size(4.dp))
-        Text(text = "Interval color:")
-        Spacer(modifier = Modifier.size(4.dp))
-        ColorSelector(initial = interval.color.color(), onChange = { intervalColor = it })
-        Spacer(modifier = Modifier.size(4.dp))
-        Divider()
-        Spacer(modifier = Modifier.size(4.dp))
-        Row(modifier = Modifier.fillMaxWidth()) {
-            OvalIconButton(
-                caption = "Delete",
-                imageVector = Icons.Default.Delete
-            ) {
-                onDelete(interval)
-            }
-            Spacer(
-                modifier = Modifier
-                    .size(4.dp)
-                    .weight(1f)
-            )
-            OvalIconButton(
-                caption = "Cancel",
-                imageVector = Icons.Default.Close
-            ) {
-                onCancel()
-            }
-            Spacer(
-                modifier = Modifier
-                    .size(4.dp)
-                    .weight(1f)
-            )
-            OvalIconButton(
-                caption = "Done",
-                imageVector = Icons.Default.Done
-            ) {
-                onDone(
-                    interval.copy(
-                        name = intervalName,
-                        duration = intervalDuration,
-                        color = intervalColor.string(),
-                        signal = intervalSignal,
-                        type = intervalType
-                    )
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun ColorSelector(initial: Color, onChange: (Color) -> Unit) {
-    var color by remember { mutableStateOf(initial) }
-    val listState = rememberLazyListState(if (initial in colors) colors.indexOf(initial) else 0)
-    var showColorDialog by remember { mutableStateOf(false) }
-    Row {
-        Column {
-            Text(text = "Customize:", fontSize = 11.sp)
-            Spacer(modifier = Modifier.size(4.dp))
-            ColorBox(
-                modifier = Modifier.clickable { showColorDialog = true },
-                color = color,
-                selected = color !in colors
-            )
-        }
-        Spacer(modifier = Modifier.size(12.dp))
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text(text = "Or select color:", fontSize = 11.sp)
-            Spacer(modifier = Modifier.size(4.dp))
-            LazyRow(state = listState) {
-                items(colors) { c ->
-                    ColorBox(
-                        modifier = Modifier.clickable {
-                            color = c
-                            onChange(c)
-                        },
-                        color = c,
-                        selected = color == c
-                    )
-                    Spacer(modifier = Modifier.size(4.dp))
-                }
-            }
-        }
-    }
-
-    if (showColorDialog) ColorDialog(color = color,
-        onCancel = { showColorDialog = false },
-        onOk = {
-            color = it
-            onChange(it)
-            showColorDialog = false
-        })
-
-}
-
-@Composable
-fun ColorBox(modifier: Modifier, color: Color, selected: Boolean) {
-    Box(
-        modifier
-            .size(54.dp)
-            .border(
-                width = 1.dp,
-                color = if (selected) MaterialTheme.colors.onPrimary else Color.Transparent,
-                shape = RoundedCornerShape(8.dp)
-            )
-            .padding(8.dp)
-            .background(
-                color = color,
-                shape = RoundedCornerShape(8.dp)
-            )
-    )
-}
-
-@ExperimentalAnimationApi
-@Composable
-fun DurationSelector(initial: Int, onChange: (Int) -> Unit) {
-    val scope = rememberCoroutineScope()
-    val duration = remember { mutableStateOf(TextFieldValue(initial.toString())) }
-    var editMode by remember { mutableStateOf(false) }
-    val focusRequester = remember { FocusRequester() }
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        RepeatingClickableButton(onLongClick = {
-            duration.value =
-                TextFieldValue(((duration.value.text.toInt() - 1)).coerceAtLeast(0).toString())
-            onChange(duration.value.text.toIntOrNull() ?: 0)
-        }, shape = RoundedCornerShape(50)) {
-            Text(text = "-", style = MaterialTheme.typography.button)
-        }
-        Spacer(modifier = Modifier.size(4.dp))
-        if (editMode) BasicTextField(
-            value = duration.value,
-            onValueChange = { duration.value = it },
-            textStyle = MaterialTheme.typography.h6,
-            modifier = Modifier
-                .width(48.dp)
-                .focusRequester(focusRequester),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(onDone = { editMode = false })
-        )
-        else AnimatedContent(targetState = duration.value.text.toInt(), transitionSpec = {
-            if (targetState > initialState) {
-                slideInVertically(initialOffsetY = { height -> height }) + fadeIn() with
-                        slideOutVertically(targetOffsetY = { height -> -height }) + fadeOut()
-            } else {
-                slideInVertically(initialOffsetY = { height -> -height }) + fadeIn() with
-                        slideOutVertically(targetOffsetY = { height -> height }) + fadeOut()
-            }.using(SizeTransform(clip = false))
-        })
-        { targetDur ->
-            Text(
-                text = targetDur.toString().padStart(3, '0'),
-                style = MaterialTheme.typography.h6,
-                modifier = Modifier.padding(start = 4.dp, end = 4.dp)
-            )
-        }
-        Spacer(modifier = Modifier.size(4.dp))
-        Icon(imageVector = if (!editMode) Icons.Default.Edit else Icons.Default.Done,
-            contentDescription = "Edit",
-            modifier = Modifier.clickable {
-                editMode = !editMode
-                if (editMode) {
-                    duration.value = duration.value
-                        .copy(selection = TextRange(0, duration.value.text.length))
-                    scope.launch {
-                        delay(50)
-                        focusRequester.requestFocus()
-                    }
-                } else {
-                    onChange(duration.value.text.toIntOrNull() ?: 0)
-                }
-            })
-        Spacer(modifier = Modifier.size(4.dp))
-        RepeatingClickableButton(onLongClick = {
-            duration.value = TextFieldValue((duration.value.text.toInt() + 1).toString())
-            onChange(duration.value.text.toIntOrNull() ?: 0)
-        }, shape = RoundedCornerShape(50)) {
-            Text(text = "+", style = MaterialTheme.typography.button)
-        }
-    }
-}
-
-//---v2-design---
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
@@ -741,23 +417,24 @@ fun IntervalDetails(
     var sound by remember { mutableStateOf(interval.signal) }
     var color by remember { mutableStateOf(interval.color.color()) }
     var typeSelectorExpanded by remember { mutableStateOf(false) }
-    var soundSelectorExpanded by remember { mutableStateOf(false)}
+    var soundSelectorExpanded by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
     ) {
-        Divider() //todo padding
-        Spacer(modifier = Modifier.size(8.dp))
         TextField(
             value = name,
             onValueChange = { name = it.take(MAX_INTERVAL_NAME_LENGTH) },
             modifier = Modifier.fillMaxWidth(),
             label = { Text(text = "Short interval name") },
-            singleLine = true
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = {focusManager.clearFocus()})
         )
         Spacer(modifier = Modifier.size(8.dp))
-        Divider() //todo padding
+        Divider()
         Spacer(modifier = Modifier.size(8.dp))
         Row(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.weight(0.5f)) {
@@ -862,7 +539,7 @@ fun IntervalDetails(
                         onDismissRequest = { soundSelectorExpanded = false }) {
                         DropdownMenuItem(onClick = {
                             sound = IntervalSignal.SILENT
-                            typeSelectorExpanded = false
+                            soundSelectorExpanded = false
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_int_sound_silent),
@@ -876,7 +553,7 @@ fun IntervalDetails(
                         }
                         DropdownMenuItem(onClick = {
                             sound = IntervalSignal.SOUND
-                            typeSelectorExpanded = false
+                            soundSelectorExpanded = false
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_int_sound_quiet),
@@ -890,7 +567,7 @@ fun IntervalDetails(
                         }
                         DropdownMenuItem(onClick = {
                             sound = IntervalSignal.VIBRATION
-                            typeSelectorExpanded = false
+                            soundSelectorExpanded = false
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_int_sound_vibro),
@@ -907,46 +584,65 @@ fun IntervalDetails(
             }
         }
         Spacer(modifier = Modifier.size(8.dp))
-        Divider() //todo padding
+        Divider()
         Spacer(modifier = Modifier.size(8.dp))
         //todo new?
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(text = "Duration (seconds):")
-            Spacer(modifier = Modifier.size(8.dp).weight(1f))
-            DurationSelector(initial = duration, onChange = {duration = it})
+            Spacer(
+                modifier = Modifier
+                    .size(8.dp)
+                    .weight(1f)
+            )
+            DurationSelector(initial = duration, onChange = { duration = it })
         }
         Spacer(modifier = Modifier.size(8.dp))
-        Divider() //todo padding
+        Divider()
         Spacer(modifier = Modifier.size(8.dp))
         //todo new?
-        ColorSelector(initial = color, onChange = {color = it})
+        ColorSelector(initial = color, onChange = { color = it })
         Spacer(modifier = Modifier.size(8.dp))
-        Divider() //todo padding
+        Divider()
         Spacer(modifier = Modifier.size(8.dp))
         Row {
-            FilledIconButton(modifier = Modifier,
+            FilledIconButton(
+                modifier = Modifier,
                 onClick = { onDelete(interval) },
                 text = "Delete",
-                imageVector = Icons.Default.Delete)
-            Spacer(modifier = Modifier
-                .size(8.dp)
-                .weight(1f))
-            FilledIconButton(modifier = Modifier,
+                imageVector = Icons.Default.Delete
+            )
+            Spacer(
+                modifier = Modifier
+                    .size(8.dp)
+                    .weight(1f)
+            )
+            FilledIconButton(
+                modifier = Modifier,
                 onClick = { onCancel() },
                 text = "Cancel",
-                imageVector = Icons.Default.Close)
-            Spacer(modifier = Modifier
-                .size(8.dp)
-                .weight(1f))
-            FilledIconButton(modifier = Modifier,
-                //todo - check constrains
-                onClick = { onDone(interval.copy(name = name,
-                    duration = duration,
-                    type = type,
-                    signal = sound,
-                    color = color.string())) },
+                imageVector = Icons.Default.Close
+            )
+            Spacer(
+                modifier = Modifier
+                    .size(8.dp)
+                    .weight(1f)
+            )
+            FilledIconButton(
+                modifier = Modifier,
+                onClick = {
+                    onDone(
+                        interval.copy(
+                            name = name.take(MAX_INTERVAL_NAME_LENGTH),
+                            duration = duration.coerceIn(MIN_INTERVAL_DURATION, MAX_INTERVAL_DURATION),
+                            type = type,
+                            signal = sound,
+                            color = color.string()
+                        )
+                    )
+                },
                 text = "Done",
-                imageVector = Icons.Default.Done)
+                imageVector = Icons.Default.Done
+            )
         }
     }
 }
@@ -1030,6 +726,141 @@ fun IntervalRowTop(
     }
 }
 
+@Composable
+fun ColorSelector(initial: Color, onChange: (Color) -> Unit) {
+    var color by remember { mutableStateOf(initial) }
+    val listState = rememberLazyListState(if (initial in colors) colors.indexOf(initial) else 0)
+    var showColorDialog by remember { mutableStateOf(false) }
+    Column {
+        Text(text = "Customize or select color:")
+        Spacer(modifier = Modifier.size(4.dp))
+        Row {
+            ColorBox(
+                modifier = Modifier.clickable { showColorDialog = true },
+                color = color,
+                selected = color !in colors
+            )
+            Spacer(modifier = Modifier.size(4.dp))
+            Box(
+                modifier = Modifier
+                    .width(1.dp)
+                    .height(48.dp)
+                    .background(color = MaterialTheme.colors.secondary)
+            )
+            Spacer(modifier = Modifier.size(4.dp))
+            LazyRow(state = listState) {
+                items(colors) { c ->
+                    ColorBox(
+                        modifier = Modifier.clickable {
+                            color = c
+                            onChange(c)
+                        },
+                        color = c,
+                        selected = color == c
+                    )
+                    Spacer(modifier = Modifier.size(4.dp))
+                }
+            }
+        }
+    }
+
+    if (showColorDialog) ColorDialog(color = color,
+        onCancel = { showColorDialog = false },
+        onOk = {
+            color = it
+            onChange(it)
+            showColorDialog = false
+        })
+}
+
+@Composable
+fun ColorBox(modifier: Modifier, color: Color, selected: Boolean) {
+    Box(
+        modifier
+            .size(48.dp)
+            .border(
+                width = 1.dp,
+                color = if (selected) MaterialTheme.colors.onPrimary else Color.Transparent,
+                shape = RoundedCornerShape(8.dp)
+            )
+            .padding(4.dp)
+            .background(
+                color = color,
+                shape = RoundedCornerShape(4.dp)
+            )
+    )
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun DurationSelector(initial: Int, onChange: (Int) -> Unit) {
+    val scope = rememberCoroutineScope()
+    val duration = remember { mutableStateOf(TextFieldValue(initial.toString())) }
+    var editMode by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        RepeatingClickableButton(onLongClick = {
+            duration.value =
+                TextFieldValue(((duration.value.text.toInt() - 1)).coerceAtLeast(0).toString())
+            onChange(duration.value.text.toIntOrNull() ?: 0)
+        }, shape = RoundedCornerShape(50)) {
+            Text(text = "-", style = MaterialTheme.typography.button)
+        }
+        Spacer(modifier = Modifier.size(4.dp))
+        if (editMode) BasicTextField(
+            value = duration.value,
+            onValueChange = { duration.value = it; onChange(it.text.toIntOrNull()?:0) },
+            textStyle = MaterialTheme.typography.h6,
+            modifier = Modifier
+                .width(48.dp)
+                .focusRequester(focusRequester),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(onDone = { editMode = false })
+        )
+        else AnimatedContent(targetState = duration.value.text.toInt(), transitionSpec = {
+            if (targetState > initialState) {
+                slideInVertically(initialOffsetY = { height -> height }) + fadeIn() with
+                        slideOutVertically(targetOffsetY = { height -> -height }) + fadeOut()
+            } else {
+                slideInVertically(initialOffsetY = { height -> -height }) + fadeIn() with
+                        slideOutVertically(targetOffsetY = { height -> height }) + fadeOut()
+            }.using(SizeTransform(clip = false))
+        })
+        { targetDur ->
+            Text(
+                text = targetDur.toString().padStart(3, '0'),
+                style = MaterialTheme.typography.h6,
+                modifier = Modifier.padding(start = 4.dp, end = 4.dp)
+            )
+        }
+        Spacer(modifier = Modifier.size(4.dp))
+        Icon(imageVector = if (!editMode) Icons.Default.Edit else Icons.Default.Done,
+            contentDescription = "Edit",
+            modifier = Modifier.clickable {
+                editMode = !editMode
+                if (editMode) {
+                    duration.value = duration.value
+                        .copy(selection = TextRange(0, duration.value.text.length))
+                    scope.launch {
+                        delay(50)
+                        focusRequester.requestFocus()
+                    }
+                } else {
+                    onChange(duration.value.text.toIntOrNull() ?: 0)
+                }
+            })
+        Spacer(modifier = Modifier.size(4.dp))
+        RepeatingClickableButton(onLongClick = {
+            duration.value = TextFieldValue((duration.value.text.toInt() + 1).toString())
+            onChange(duration.value.text.toIntOrNull() ?: 0)
+        }, shape = RoundedCornerShape(50)) {
+            Text(text = "+", style = MaterialTheme.typography.button)
+        }
+    }
+}
 
 @Composable
 fun DurationBox(duration: Int, color: Color) {
@@ -1050,6 +881,17 @@ fun DurationBox(duration: Int, color: Color) {
 }
 
 //---end-v2-design---
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
+@Preview(showBackground = true)
+@Composable
+fun BottomPreview() {
+    QuietColorsTimerTheme {
+        Surface(color = MaterialTheme.colors.background) {
+            BottomBar({ }, { })
+        }
+    }
+}
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
 @Preview(showBackground = true)
@@ -1083,6 +925,28 @@ fun IntervalDetailsPreview() {
             IntervalDetails(interval = test_timer_1_intervals[0], onDelete = {}, onDone = {}) {
 
             }
+        }
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
+@Preview(showBackground = true)
+@Composable
+fun TimerEditorPreview() {
+    QuietColorsTimerTheme {
+        Surface(color = MaterialTheme.colors.background) {
+            TimerEditor(timer = test_timer_1, onCancel = {}, onOk = {})
+        }
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
+@Preview(showBackground = true)
+@Composable
+fun TopPreview() {
+    QuietColorsTimerTheme {
+        Surface(color = MaterialTheme.colors.background) {
+            TopBar(name = "Timer name", type = TimerType.OTHER, isEdit = false) {}
         }
     }
 }
