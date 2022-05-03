@@ -23,7 +23,7 @@ data class Interval(
     val color: String,
     @ColumnInfo(defaultValue = "SILENT")
     val signal: IntervalSignal,
-    val type: IntervalType //TODO - online properties
+    val type: IntervalType
 )
 
 @Entity(tableName = "timers_table")
@@ -32,8 +32,10 @@ data class InTimer(
     var id: Int = 0,
     val name: String,
     val description: String,
+    @ColumnInfo(defaultValue = "")
+    val link: String,
     val pinned: Boolean,
-    val type: TimerType //TODO - online properties
+    val type: TimerType //TODO - online properties - v2 futures
 )
 
 data class TimerWithIntervals(

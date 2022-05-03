@@ -17,6 +17,7 @@ const val NEW_INTERVAL_NAME = "Interval"
 
 val NEW_TIMER = InTimer(name = NEW_TIMER_NAME,
     description = "...description...",
+    link = "",
     pinned = false,
     type = TimerType.OTHER)
 

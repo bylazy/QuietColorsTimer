@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         defaultBrightness = window.attributes.screenBrightness
-        mediaPlayer = MediaPlayer.create(this.applicationContext, R.raw.s_knocks) // todo select sound
+        mediaPlayer = MediaPlayer.create(this.applicationContext, R.raw.s_forsure_ok) // todo select sound
         vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val vManager = this.applicationContext.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
             vManager.defaultVibrator
@@ -58,6 +58,7 @@ class MainActivity : ComponentActivity() {
                             TimerScr(viewModel = timerViewModel,
                                 navController = navController,
                                 keepScreenOn = { keepScreenOn(it) },
+                                restoreBrightness = {restoreBrightness()},
                                 adjustBrightness = { adjustBrightness(it) },
                                 playSound = {playSound()},
                                 vibrate = {vibrate()})
@@ -81,6 +82,10 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mediaPlayer.release()
+        restoreBrightness()
+    }
+
+    private fun restoreBrightness() {
         val windowAttributes = window.attributes
         windowAttributes.screenBrightness = defaultBrightness
         window.attributes = windowAttributes

@@ -7,10 +7,10 @@ import com.bylazy.quietcolorstimer.data.TimerType
 import com.bylazy.quietcolorstimer.data.string
 
 val test_timer_1 = InTimer(name = "Test timer 1",
-    description = "Short description", pinned = false, type = TimerType.WORKOUT)
+    description = "Short description", link = "", pinned = false, type = TimerType.WORKOUT)
 
 val test_timer_2 = InTimer(name = "Test timer 2",
-    description = "Some description", pinned = false, type = TimerType.OTHER)
+    description = "Some description", link = "link here", pinned = false, type = TimerType.OTHER)
 
 val test_timer_1_intervals = listOf(Interval(timerId = 0,
     position = 1,
@@ -41,3 +41,5 @@ val test_timer_2_intervals = listOf(Interval(timerId = 0,
     signal = IntervalSignal.SILENT,
     type = IntervalType.DARK)
 )
+
+//TODO - add 5-10 initial timers - v1 future

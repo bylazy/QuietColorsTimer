@@ -6,12 +6,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.bylazy.quietcolorstimer.data.*
+import com.bylazy.quietcolorstimer.data.COOLDOWN_INTERVAL
+import com.bylazy.quietcolorstimer.data.Event
+import com.bylazy.quietcolorstimer.data.FINISH_INTERVAL
+import com.bylazy.quietcolorstimer.data.color
 import com.bylazy.quietcolorstimer.db.TimerDB
 import com.bylazy.quietcolorstimer.repo.Repo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 
 class TimerViewModel(
     application: Application,
@@ -22,8 +24,10 @@ class TimerViewModel(
     private val repo = Repo(db.timerDAO())
 
     //new logic
+    private var skip: Boolean = false
+    var pause = mutableStateOf(false)
     private var timerName = ""
-    var timerDuration = 0
+    private var timerDuration = 0
     private var overall = 1
     private var lastIndex = 0
     val colorProgress = mutableListOf<Pair<Float, Color>>()
@@ -37,6 +41,12 @@ class TimerViewModel(
         } }
         .transform { list -> list.forEachIndexed{ index, interval ->
             for (i in 1..interval.duration) {
+                while (pause.value) {delay(100)}
+                if (skip) {
+                    overall += interval.duration - i + 1
+                    skip = false
+                    break
+                }
                 emit(Event(interval = interval.name,
                     next = if (index == lastIndex) "-" else list[index+1].name,
                     timer = timerName,
@@ -59,67 +69,7 @@ class TimerViewModel(
         //.onEach { delay(1000) }
         .conflate()
         .onStart { delay(1000) }
-
-    //new logic ends
-
-
-
-    private val intervals = mutableListOf(COOLDOWN_INTERVAL)
-    private lateinit var timer: String
-    private var overallDuration = 0
-    private val _weights = mutableListOf<Pair<Float, Color>>()
-    val weights: List<Pair<Float, Color>>
-     get() = _weights
-    lateinit var ticks: Flow<Event>
-
-    private var skip: Boolean = false
-    var pause = mutableStateOf(false)
-
-    val loading = mutableStateOf(true)
-
-    init {
-        viewModelScope.launch {
-            val currentTimer = repo.getTimerWithIntervals(savedStateHandle["id"] ?: 0)
-            intervals.addAll(currentTimer.intervals)
-            overallDuration = intervals.sumOf { it.duration }
-            timer = currentTimer.timer.name
-            _weights.addAll(intervals.map { it.duration.toFloat() / overallDuration.toFloat() to it.color.color()})
-
-            ticks = flow {
-                var overall = 1
-                intervals.forEachIndexed { index, interval ->
-
-                    for (i in 1..interval.duration) {
-                        while (pause.value) {delay(100)}
-                        if (skip) {
-                            overall += interval.duration - i + 1
-                            skip = false
-                            break
-                        }
-                        emit(Event(interval = interval.name,
-                            next = if (index == intervals.lastIndex) "Finish!" else intervals[index+1].name,
-                            timer = timer,
-                            type = interval.type,
-                            sound = interval.signal,
-                            duration = interval.duration,
-                            overallDuration = overallDuration,
-                            currentSecondsLeft = interval.duration - i,
-                            overallSeconds = overall,
-                            currentProgress = i.toFloat() / interval.duration.toFloat(),
-                            overallProgress = overall.toFloat() / overallDuration.toFloat(),
-                            color = if (i == interval.duration - 1 && index != intervals.lastIndex) intervals[index+1].color.color()
-                            else interval.color.color()))
-                        overall++
-                    }
-                }
-            }.onEach { delay(1000) }
-                .onStart { delay(1000) }
-                .conflate()
-                .onCompletion { emit(FINISH_EVENT) }
-
-            loading.value = false
-        }
-    }
+        .shareIn(viewModelScope, started = SharingStarted.Lazily)
 
     fun skipInterval() {
         skip = true
@@ -128,4 +78,7 @@ class TimerViewModel(
     fun pauseInterval() {
         pause.value = !pause.value
     }
+
+    //new logic ends
+
 }

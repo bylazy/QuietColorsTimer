@@ -1,15 +1,17 @@
 package com.bylazy.quietcolorstimer.db
 
 import android.content.Context
-import androidx.room.*
+import androidx.room.AutoMigration
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 @Database(entities = [InTimer::class, Interval::class],
-    version = 2,
-    autoMigrations = [AutoMigration(from = 1, to = 2)],
+    version = 3,
+    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3)],
     exportSchema = true)
 abstract class TimerDB: RoomDatabase(){
     abstract fun timerDAO(): TimerDAO

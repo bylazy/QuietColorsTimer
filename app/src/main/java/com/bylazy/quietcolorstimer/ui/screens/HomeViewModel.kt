@@ -11,7 +11,6 @@ import com.bylazy.quietcolorstimer.db.TimerWithIntervals
 import com.bylazy.quietcolorstimer.repo.Repo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch

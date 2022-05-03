@@ -196,9 +196,12 @@ fun TimerEditor(
 ) {
     var name by remember { mutableStateOf(timer.name) }
     var desc by remember { mutableStateOf(timer.description) }
+    var link by remember { mutableStateOf(timer.link) }
     var type by remember { mutableStateOf(timer.type) }
     var expanded by remember { mutableStateOf(false) }
-    val focusRequester = FocusRequester.Default
+    val descFocusRequester = remember {FocusRequester()}
+    val linkFocusRequester = remember {FocusRequester()}
+    val focusManager = LocalFocusManager.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -212,7 +215,8 @@ fun TimerEditor(
             label = { Text(text = "Name:") },
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { focusRequester.requestFocus() })
+            keyboardActions = KeyboardActions(onDone = { descFocusRequester.requestFocus() }),
+            //colors = TextFieldColors
         )
         Spacer(modifier = Modifier.size(8.dp))
         Divider()
@@ -222,96 +226,104 @@ fun TimerEditor(
             onValueChange = { desc = it },
             modifier = Modifier
                 .fillMaxWidth()
-                .focusRequester(focusRequester),
-            label = { Text(text = "Description:") }
+                .focusRequester(descFocusRequester),
+            label = { Text(text = "Description:") },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { linkFocusRequester.requestFocus() })
         )
         Spacer(modifier = Modifier.size(8.dp))
         Divider()
         Spacer(modifier = Modifier.size(8.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = "Type / Icon:")
-            Spacer(
-                modifier = Modifier
-                    .size(8.dp)
-                    .weight(1f)
-            )
-            ExposedDropdownMenuBox(expanded = expanded,
-                onExpandedChange = { expanded = !expanded }) {
-                TextField(value = when (type) {
-                    TimerType.WORKOUT -> "Workout / Training"
-                    TimerType.YOGA -> "Yoga / Relax"
-                    TimerType.COOK -> "Cooking"
-                    else -> "Other"
-                },
-                    onValueChange = {},
-                    readOnly = true,
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(
-                                id = when (type) {
-                                    TimerType.WORKOUT -> R.drawable.ic_type_workout
-                                    TimerType.YOGA -> R.drawable.ic_type_yoga
-                                    TimerType.COOK -> R.drawable.ic_type_cook
-                                    else -> R.drawable.ic_type_default
-                                }
-                            ),
-                            contentDescription = "Timer type"
-                        )
-                    }, trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(
-                            expanded = expanded
-                        )
-                    })
-                ExposedDropdownMenu(expanded = expanded,
-                    onDismissRequest = { expanded = false }) {
-                    DropdownMenuItem(onClick = { type = TimerType.WORKOUT; expanded = false }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_big_workout),
-                            contentDescription = "Workout",
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.size(8.dp))
-                        Text(
-                            text = "Workout / Training",
-                            modifier = Modifier.align(Alignment.CenterVertically)
-                        )
-                    }
-                    DropdownMenuItem(onClick = { type = TimerType.YOGA; expanded = false }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_big_yoga),
-                            contentDescription = "Yoga",
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.size(8.dp))
-                        Text(
-                            text = "Yoga / Relax",
-                            modifier = Modifier.align(Alignment.CenterVertically)
-                        )
-                    }
-                    DropdownMenuItem(onClick = { type = TimerType.COOK; expanded = false }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_big_cook),
-                            contentDescription = "Cooking",
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.size(8.dp))
-                        Text(
-                            text = "Cooking",
-                            modifier = Modifier.align(Alignment.CenterVertically)
-                        )
-                    }
-                    DropdownMenuItem(onClick = { type = TimerType.OTHER; expanded = false }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_big_common),
-                            contentDescription = "Other",
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.size(8.dp))
-                        Text(
-                            text = "Other",
-                            modifier = Modifier.align(Alignment.CenterVertically)
-                        )
-                    }
+        TextField(
+            value = link,
+            onValueChange = { link = it }, //todo - link
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(linkFocusRequester),
+            label = { Text(text = "Link:") },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
+        )
+        Spacer(modifier = Modifier.size(8.dp))
+        Divider()
+        Spacer(modifier = Modifier.size(8.dp))
+        ExposedDropdownMenuBox(expanded = expanded,
+            onExpandedChange = { expanded = !expanded }) {
+            TextField(value = when (type) {
+                TimerType.WORKOUT -> "Workout / Training"
+                TimerType.YOGA -> "Yoga / Relax"
+                TimerType.COOK -> "Cooking"
+                else -> "Other"
+            },
+                onValueChange = {},
+                modifier = Modifier.fillMaxWidth(),
+                readOnly = true,
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(
+                            id = when (type) {
+                                TimerType.WORKOUT -> R.drawable.ic_type_workout
+                                TimerType.YOGA -> R.drawable.ic_type_yoga
+                                TimerType.COOK -> R.drawable.ic_type_cook
+                                else -> R.drawable.ic_type_default
+                            }
+                        ),
+                        contentDescription = "Timer type"
+                    )
+                }, trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(
+                        expanded = expanded
+                    )
+                })
+            ExposedDropdownMenu(expanded = expanded,
+                onDismissRequest = { expanded = false }) {
+                DropdownMenuItem(onClick = { type = TimerType.WORKOUT; expanded = false }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_big_workout),
+                        contentDescription = "Workout",
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Text(
+                        text = "Workout / Training",
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
+                }
+                DropdownMenuItem(onClick = { type = TimerType.YOGA; expanded = false }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_big_yoga),
+                        contentDescription = "Yoga",
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Text(
+                        text = "Yoga / Relax",
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
+                }
+                DropdownMenuItem(onClick = { type = TimerType.COOK; expanded = false }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_big_cook),
+                        contentDescription = "Cooking",
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Text(
+                        text = "Cooking",
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
+                }
+                DropdownMenuItem(onClick = { type = TimerType.OTHER; expanded = false }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_big_common),
+                        contentDescription = "Other",
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Text(
+                        text = "Other",
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
                 }
             }
         }
@@ -332,7 +344,10 @@ fun TimerEditor(
             )
             FilledIconButton(
                 modifier = Modifier,
-                onClick = { onOk(timer.copy(name = name, description = desc, type = type)) },
+                onClick = { onOk(timer.copy(name = name,
+                    description = desc,
+                    link = link,
+                    type = type)) },
                 text = "OK",
                 imageVector = Icons.Default.Done
             )
@@ -660,6 +675,7 @@ fun IntervalRowTop(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable { onSelect(interval) }
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -714,12 +730,6 @@ fun IntervalRowTop(
                     onClick = { onDown(interval) },
                     imageVector = Icons.Default.KeyboardArrowDown,
                     desc = "Move Down"
-                )
-                Spacer(modifier = Modifier.size(8.dp))
-                RoundIconButton(
-                    onClick = { onSelect(interval) },
-                    imageVector = Icons.Default.Edit,
-                    desc = "Edit"
                 )
             }
         }

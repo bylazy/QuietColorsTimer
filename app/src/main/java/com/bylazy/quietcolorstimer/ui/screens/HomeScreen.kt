@@ -410,7 +410,7 @@ fun RowDetails(
                 onClick = {
                     onPin(timer)
                 },
-                text = if (timer.pinned) "Unpin" else "Pin on top",
+                text = if (timer.pinned) "Unpin" else "Pin",
                 imageVector = if (timer.pinned) Icons.Default.KeyboardArrowDown
                 else Icons.Default.KeyboardArrowUp,
                 contentDescription = "Pin/Unpin"

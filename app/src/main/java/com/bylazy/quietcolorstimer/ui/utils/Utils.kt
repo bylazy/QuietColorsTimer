@@ -1,9 +1,11 @@
 package com.bylazy.quietcolorstimer.ui.utils
 
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.animation.*
-import androidx.compose.foundation.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.gestures.forEachGesture
@@ -19,8 +21,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.DrawStyle
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -29,16 +33,12 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.bylazy.quietcolorstimer.db.test_timer_1
-import com.bylazy.quietcolorstimer.ui.screens.TimerEditor
 import com.bylazy.quietcolorstimer.ui.theme.QuietColorsTimerTheme
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
 
 
 @Composable
@@ -47,7 +47,7 @@ fun ListItemCard(modifier: Modifier = Modifier, content: @Composable () -> Unit)
         modifier
             .fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
-        elevation = 6.dp) {
+        elevation = 2.dp) {
         content()
     }
 }
@@ -171,6 +171,71 @@ fun ColorDialog(color: Color, onCancel: () -> Unit, onOk: (Color) -> Unit) {
                     Button(onClick = { onOk(Color(r, g, b)) }) {
                         Text(text = "OK")
                     }
+                }
+            }
+        }
+    }
+}
+
+
+
+@Composable
+fun CombinedColorDialog(color: Color,
+                        onChange: (Color) -> Unit,
+                        onCancel: () -> Unit) {
+    var hsvMode by remember { mutableStateOf(false) }
+    var currentColor by remember { mutableStateOf(color) }
+    Dialog(onDismissRequest = onCancel) {
+        Card(shape = RoundedCornerShape(12.dp), elevation = 4.dp) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(text = "Select Color:")
+                Spacer(modifier = Modifier.size(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Spacer(modifier = Modifier
+                        .size(8.dp))
+                    RadioButton(selected = !hsvMode, onClick = { hsvMode = false })
+                    Spacer(modifier = Modifier
+                        .size(8.dp))
+                    Text(text = "RGB")
+                    Spacer(modifier = Modifier
+                        .size(8.dp)
+                        .weight(1f))
+                    RadioButton(selected = hsvMode, onClick = { hsvMode = true })
+                    Spacer(modifier = Modifier
+                        .size(8.dp))
+                    Text(text = "HSV")
+                    Spacer(modifier = Modifier
+                        .size(8.dp))
+                }
+                Spacer(modifier = Modifier.size(8.dp))
+                if (hsvMode) {
+                    Text("Under construction") // todo here we go
+                }
+                else {
+                    Text("Under construction")
+                }
+                Spacer(modifier = Modifier.size(8.dp))
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .background(color = currentColor))
+                Spacer(modifier = Modifier.size(8.dp))
+                Row {
+                    Spacer(modifier = Modifier
+                        .size(8.dp)
+                        .weight(1f))
+                    Button(onClick = onCancel) {
+                        Text(text = "Cancel")
+                    }
+                    Spacer(modifier = Modifier
+                        .size(8.dp)
+                        .weight(1f))
+                    Button(onClick = { onChange(currentColor) }) {
+                        Text(text = "Select")
+                    }
+                    Spacer(modifier = Modifier
+                        .size(8.dp)
+                        .weight(1f))
                 }
             }
         }
@@ -310,6 +375,8 @@ fun SVBox(modifier: Modifier = Modifier,
     }
 }
 
+//TODO - add to dialog - v1 future
+
 @Composable
 fun ColorPicker(modifier: Modifier = Modifier, color: Color, onChange: (Color) -> Unit) {
     var hue by remember(color) { mutableStateOf(0f)}
@@ -362,13 +429,7 @@ internal fun onColorDataChanged(h: Float, s: Float, v: Float): Color {
     return Color(android.graphics.Color.HSVToColor(floatArrayOf(h, s, v)))
 }
 
-//R 255 - 255 -   0 -   0 -   0 - 255 - 255
-//G   0 - 255 - 255 - 255 -   0 -   0 -   0
-//B   0 -   0 -   0 - 255 - 255 - 255 -   0
-
 //---v2---design---end
-
-
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
 @Preview(showBackground = true)
@@ -384,5 +445,7 @@ fun ColorScalePreview() {
         }
     }
 }
+
+
 
 
