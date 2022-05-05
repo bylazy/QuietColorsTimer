@@ -126,11 +126,11 @@ fun TmrDetails(viewModel: TimerViewModel, tick: Event, onQuit: () -> Unit) {
             .size(8.dp)
             .weight(1f))
         Text(text = tick.interval, fontSize = dpToSp(dp = 54.dp), fontWeight = FontWeight.ExtraBold, color = onColor)
-        Spacer(modifier = Modifier.size(8.dp))
+        Spacer(modifier = Modifier.size(4.dp))
         Text(text = if (tick.interval == "Done!" && tick.duration == 1) " " else "Next: ${tick.next}",
-            fontSize = dpToSp(dp = 24.dp),
+            fontSize = dpToSp(dp = 20.dp),
             color = onColor)
-        Spacer(modifier = Modifier.size(16.dp))
+        Spacer(modifier = Modifier.size(24.dp))
         Row(modifier = Modifier
             .padding(start = 8.dp, end = 8.dp)
             .fillMaxWidth()
@@ -153,7 +153,7 @@ fun TmrDetails(viewModel: TimerViewModel, tick: Event, onQuit: () -> Unit) {
                 .clip(PointerShape())
                 .background(color = onColor))
         }
-        Spacer(modifier = Modifier.size(8.dp))
+        Spacer(modifier = Modifier.size(16.dp))
         if (tick.interval == "Done!" && tick.duration == 1) {Text(text = "---", color = onColor, fontSize = dpToSp(dp = 20.dp))}
         else Row {
             AnimatedContent(targetState = tick.overallSeconds, transitionSpec = {
@@ -161,9 +161,9 @@ fun TmrDetails(viewModel: TimerViewModel, tick: Event, onQuit: () -> Unit) {
                         slideOutVertically(targetOffsetY =  { height -> -height }) + fadeOut())
                     .using(sizeTransform = SizeTransform(clip = false))
             }) { target ->
-                Text(text = target.toString(), color = onColor, fontSize = dpToSp(dp = 20.dp))
+                Text(text = target.toString(), color = onColor, fontSize = dpToSp(dp = 24.dp))
             }
-            Text(text = " of ${tick.overallDuration}", color = onColor, fontSize = dpToSp(dp = 20.dp))
+            Text(text = " of ${tick.overallDuration}", color = onColor, fontSize = dpToSp(dp = 24.dp))
         }
         Spacer(modifier = Modifier
             .size(8.dp)

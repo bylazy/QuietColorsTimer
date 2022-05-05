@@ -97,7 +97,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun adjustBrightness(type: IntervalType){
-        Log.d("adjust", type.toString())
         when (type) {
             IntervalType.BRIGHT -> {
                 val windowAttributes = window.attributes
@@ -106,7 +105,7 @@ class MainActivity : ComponentActivity() {
             }
             IntervalType.DARK -> {
                 val windowAttributes = window.attributes
-                windowAttributes.screenBrightness = 0.2f //TODO value
+                windowAttributes.screenBrightness = 0.1f //TODO value
                 window.attributes = windowAttributes
             }
             else -> {

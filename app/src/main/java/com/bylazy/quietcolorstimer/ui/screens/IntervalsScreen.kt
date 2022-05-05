@@ -165,6 +165,7 @@ fun IntervalsList(
 ) {
     val state = rememberLazyListState()
     LaunchedEffect(key1 = scrollTo) {
+        delay(100)
         state.animateScrollToItem(scrollTo)
     }
     LazyColumn(state = state, contentPadding = paddingValues) {
@@ -200,8 +201,8 @@ fun TimerEditor(
     var type by remember { mutableStateOf(timer.type) }
     var expanded by remember { mutableStateOf(false) }
     val descFocusRequester = remember {FocusRequester()}
-    val linkFocusRequester = remember {FocusRequester()}
-    val focusManager = LocalFocusManager.current
+    //val linkFocusRequester = remember {FocusRequester()}
+    //val focusManager = LocalFocusManager.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -228,22 +229,23 @@ fun TimerEditor(
                 .fillMaxWidth()
                 .focusRequester(descFocusRequester),
             label = { Text(text = "Description:") },
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { linkFocusRequester.requestFocus() })
+            //keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            //keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
         )
+        /*
         Spacer(modifier = Modifier.size(8.dp))
         Divider()
         Spacer(modifier = Modifier.size(8.dp))
         TextField(
             value = link,
-            onValueChange = { link = it }, //todo - link
+            onValueChange = { link = it },
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(linkFocusRequester),
             label = { Text(text = "Link:") },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
-        )
+        )*/
         Spacer(modifier = Modifier.size(8.dp))
         Divider()
         Spacer(modifier = Modifier.size(8.dp))
@@ -262,10 +264,10 @@ fun TimerEditor(
                     Icon(
                         painter = painterResource(
                             id = when (type) {
-                                TimerType.WORKOUT -> R.drawable.ic_type_workout
-                                TimerType.YOGA -> R.drawable.ic_type_yoga
-                                TimerType.COOK -> R.drawable.ic_type_cook
-                                else -> R.drawable.ic_type_default
+                                TimerType.WORKOUT -> R.drawable.ic_big_workout
+                                TimerType.YOGA -> R.drawable.ic_big_yoga
+                                TimerType.COOK -> R.drawable.ic_big_cook
+                                else -> R.drawable.ic_big_common
                             }
                         ),
                         contentDescription = "Timer type"
@@ -344,7 +346,7 @@ fun TimerEditor(
             )
             FilledIconButton(
                 modifier = Modifier,
-                onClick = { onOk(timer.copy(name = name,
+                onClick = { onOk(timer.copy(name = name.ifBlank { "Unnamed" },
                     description = desc,
                     link = link,
                     type = type)) },
@@ -603,7 +605,7 @@ fun IntervalDetails(
         Spacer(modifier = Modifier.size(8.dp))
         //todo new?
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = "Duration (seconds):")
+            Text(text = "Duration (sec):")
             Spacer(
                 modifier = Modifier
                     .size(8.dp)
@@ -647,7 +649,7 @@ fun IntervalDetails(
                 onClick = {
                     onDone(
                         interval.copy(
-                            name = name.take(MAX_INTERVAL_NAME_LENGTH),
+                            name = name.take(MAX_INTERVAL_NAME_LENGTH).ifBlank { "Interval" },
                             duration = duration.coerceIn(MIN_INTERVAL_DURATION, MAX_INTERVAL_DURATION),
                             type = type,
                             signal = sound,
@@ -808,6 +810,7 @@ fun DurationSelector(initial: Int, onChange: (Int) -> Unit) {
     val duration = remember { mutableStateOf(TextFieldValue(initial.toString())) }
     var editMode by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
     Row(verticalAlignment = Alignment.CenterVertically) {
         RepeatingClickableButton(onLongClick = {
             duration.value =
@@ -828,7 +831,7 @@ fun DurationSelector(initial: Int, onChange: (Int) -> Unit) {
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Done
             ),
-            keyboardActions = KeyboardActions(onDone = { editMode = false })
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(); editMode = false })
         )
         else AnimatedContent(targetState = duration.value.text.toInt(), transitionSpec = {
             if (targetState > initialState) {

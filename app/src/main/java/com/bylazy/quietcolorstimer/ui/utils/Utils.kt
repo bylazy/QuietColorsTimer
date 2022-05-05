@@ -133,8 +133,9 @@ fun ColorDialog(color: Color, onCancel: () -> Unit, onOk: (Color) -> Unit) {
     var b by remember { mutableStateOf(color.blue) }
     Dialog(onDismissRequest = onCancel) {
         Card(elevation = 4.dp, shape = RoundedCornerShape(12.dp)) {
-            Column(modifier = Modifier.padding(4.dp)) {
-                Text(text = "Select Custom Color:", style = MaterialTheme.typography.h6)
+            Column(modifier = Modifier.padding(8.dp)) {
+                Text(text = "Select Custom Color:", modifier = Modifier.align(Alignment.CenterHorizontally),
+                    style = MaterialTheme.typography.h6)
                 Spacer(modifier = Modifier.size(10.dp))
                 Text(text = "Red: ${(r * 255).toInt()}")
                 Spacer(modifier = Modifier.size(2.dp))
@@ -209,10 +210,53 @@ fun CombinedColorDialog(color: Color,
                 }
                 Spacer(modifier = Modifier.size(8.dp))
                 if (hsvMode) {
-                    Text("Under construction") // todo here we go
+                    Row {
+                        SVBox(modifier = Modifier
+                            .height(200.dp)
+                            .weight(0.8f),
+                            hue = currentColor.h(),
+                            s = currentColor.s(),
+                            v = currentColor.v(),
+                            onChange = {s, v ->
+                                currentColor = Color(android.graphics.Color.HSVToColor(floatArrayOf(currentColor.h(), s, v)))
+                            })
+                        Spacer(modifier = Modifier.size(8.dp))
+                        ColorScale(modifier = Modifier.height(200.dp),
+                            hue = currentColor.h(), onChange = { h ->
+                                currentColor = Color(android.graphics.Color.HSVToColor(floatArrayOf(h, currentColor.s(), currentColor.v())))
+                            })
+                    }
                 }
                 else {
-                    Text("Under construction")
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(modifier = Modifier
+                            .size(48.dp)
+                            .background(color = Color.Red))
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Slider(value = currentColor.red,
+                            onValueChange = {currentColor = currentColor.copy(red = it)},
+                            valueRange = 0f..1f)
+                    }
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(modifier = Modifier
+                            .size(48.dp)
+                            .background(color = Color.Green))
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Slider(value = currentColor.green,
+                            onValueChange = {currentColor = currentColor.copy(green = it)},
+                            valueRange = 0f..1f)
+                    }
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(modifier = Modifier
+                            .size(48.dp)
+                            .background(color = Color.Blue))
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Slider(value = currentColor.blue,
+                            onValueChange = {currentColor = currentColor.copy(blue = it)},
+                            valueRange = 0f..1f)
+                    }
                 }
                 Spacer(modifier = Modifier.size(8.dp))
                 Box(modifier = Modifier
@@ -377,57 +421,39 @@ fun SVBox(modifier: Modifier = Modifier,
 
 //TODO - add to dialog - v1 future
 
-@Composable
-fun ColorPicker(modifier: Modifier = Modifier, color: Color, onChange: (Color) -> Unit) {
-    var hue by remember(color) { mutableStateOf(0f)}
-    var s by remember(color) { mutableStateOf(0f)}
-    var v by remember(color) { mutableStateOf(0f)}
-    LaunchedEffect(key1 = color) {
-        val hsv = floatArrayOf(0f, 0f, 0f)
-        android.graphics.Color.RGBToHSV(
-            (color.red * 255).toInt(),
-            (color.green * 255).toInt(),
-            (color.blue * 255).toInt(),
-            hsv
-        )
-        hue = hsv[0]
-        s = hsv[1]
-        v = hsv[2]
-    }
-    Column {
-        Row(modifier = modifier) {
-            Box(modifier = Modifier.weight(0.8f)) {
-                SVBox(modifier = Modifier
-                    .fillMaxWidth()
-                    .height(250.dp),
-                    hue = hue,
-                    s = s,
-                    v = v,
-                    onChange = {ns, nv ->
-                        s = ns
-                        v = nv
-                        onChange(onColorDataChanged(hue, s, v))})
-            }
-            Spacer(modifier = Modifier.size(8.dp))
-            Box(modifier = Modifier.weight(0.2f)) {
-                ColorScale(modifier = Modifier
-                    .fillMaxWidth()
-                    .height(250.dp),
-                    hue = hue,
-                    onChange = {hue = it; onChange(onColorDataChanged(hue, s, v))})
-            }
-        }
-        Spacer(modifier = Modifier.size(8.dp))
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp)
-            .background(color = Color(android.graphics.Color.HSVToColor(floatArrayOf(hue, s, v)))))
-    }
+internal fun Color.h(): Float {
+    val hsv = floatArrayOf(0f, 0f, 0f)
+    android.graphics.Color.RGBToHSV(
+        (this.red * 255).toInt(),
+        (this.green * 255).toInt(),
+        (this.blue * 255).toInt(),
+        hsv
+    )
+    return hsv[0]
 }
 
-internal fun onColorDataChanged(h: Float, s: Float, v: Float): Color {
-    return Color(android.graphics.Color.HSVToColor(floatArrayOf(h, s, v)))
+internal fun Color.s(): Float {
+    val hsv = floatArrayOf(0f, 0f, 0f)
+    android.graphics.Color.RGBToHSV(
+        (this.red * 255).toInt(),
+        (this.green * 255).toInt(),
+        (this.blue * 255).toInt(),
+        hsv
+    )
+    return hsv[1]
 }
+
+internal fun Color.v(): Float {
+    val hsv = floatArrayOf(0f, 0f, 0f)
+    android.graphics.Color.RGBToHSV(
+        (this.red * 255).toInt(),
+        (this.green * 255).toInt(),
+        (this.blue * 255).toInt(),
+        hsv
+    )
+    return hsv[2]
+}
+
 
 //---v2---design---end
 

@@ -1,12 +1,18 @@
 package com.bylazy.quietcolorstimer.ui.screens
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.content.Intent.ACTION_VIEW
 import android.content.res.Configuration
-import androidx.compose.animation.*
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import android.net.Uri
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -20,11 +26,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -53,10 +62,12 @@ fun HomeScreenContent(
     navController: NavController
 ) {
     val scaffoldState = rememberScaffoldState()
-    val listState = rememberLazyListState()
+
     val scope = rememberCoroutineScope()
     val timerState by viewModel.timers.collectAsState(initial = listOf())
     val selectedTimer by viewModel.selectedTimer
+    val listState = if (selectedTimer != null) rememberLazyListState(timerState.map {it.timer}.indexOf(selectedTimer))
+        else rememberLazyListState()
     val filterText by viewModel.filterFlow.collectAsState(initial = "")
     LaunchedEffect(key1 = selectedTimer) {
         if (selectedTimer != null) {
@@ -242,7 +253,7 @@ fun TimerListItem(
                 })
             ExpandableBlock(expanded = timer.timer == selectedTimer) {
                 Spacer(modifier = Modifier.size(2.dp))
-                RowDetails(
+                RowDetails(scaffoldState = scaffoldState,
                     timer = timer.timer,
                     intervals = timer.intervals,
                     onDelete = onDelete,
@@ -344,12 +355,15 @@ fun IntervalBox(interval: Interval) {
 @Composable
 fun RowDetails(
     modifier: Modifier = Modifier,
+    scaffoldState: ScaffoldState,
     timer: InTimer,
     intervals: List<Interval>,
     onDelete: (InTimer) -> Unit,
     onEdit: () -> Unit,
     onPin: (InTimer) -> Unit
 ) {
+    //val scope = rememberCoroutineScope()
+    //val context = LocalContext.current
     var showDeleteConfirmationDialog by remember { mutableStateOf(false) }
     Column(
         modifier
@@ -362,10 +376,34 @@ fun RowDetails(
         Spacer(modifier = Modifier.size(8.dp))
         Divider()
         Spacer(modifier = Modifier.size(8.dp))
+        /*
+        if (timer.link.isNotBlank()) {
+            Text(text = timer.link,
+                modifier = Modifier.clickable {
+                    scope.launch {
+                        try {
+                            val uri = Uri.parse(timer.link)
+                            val intent = Intent(ACTION_VIEW, uri)
+                            context.startActivity(intent)
+                        }
+                        catch (e: ActivityNotFoundException) {
+                            scaffoldState
+                                .snackbarHostState
+                                .showSnackbar("Invalid Link!")
+                        }
+                    }
+                },
+                color = Color.Blue,
+                maxLines = 1,
+                textDecoration = TextDecoration.Underline)
+            Spacer(modifier = Modifier.size(8.dp))
+            Divider()
+            Spacer(modifier = Modifier.size(8.dp))
+        }*/
         if (intervals.isEmpty()) Text(text = "Empty Timer, tap Edit to add some intervals!")
-        else LazyRow(verticalAlignment = Alignment.CenterVertically)
-        {
-            itemsIndexed(intervals) { index, interval ->
+        else Row(modifier = Modifier.horizontalScroll(rememberScrollState()),
+            verticalAlignment = Alignment.CenterVertically) {
+            intervals.forEachIndexed { index, interval ->
                 IntervalBox(interval = interval)
                 if (index != intervals.lastIndex) {
                     Spacer(modifier = Modifier.size(4.dp))
@@ -503,7 +541,8 @@ fun IntervalBoxPreview() {
 fun DetailsPreview() {
     QuietColorsTimerTheme {
         Surface(color = MaterialTheme.colors.background) {
-            RowDetails(timer = test_timer_1,
+            RowDetails(scaffoldState = rememberScaffoldState(),
+                timer = test_timer_1,
                 intervals = test_timer_1_intervals,
                 onDelete = {},
                 onEdit = {},
