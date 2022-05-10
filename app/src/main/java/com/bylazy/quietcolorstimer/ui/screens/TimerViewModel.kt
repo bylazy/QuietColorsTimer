@@ -59,6 +59,7 @@ class TimerViewModel(
                     currentProgress = i.toFloat() / interval.duration.toFloat(),
                     overallProgress = overall.toFloat() / timerDuration.toFloat(),
                     color = if (i == interval.duration - 1
+                        && interval.duration >= 10
                         && index != lastIndex-1
                         && index != 0) list[index+1].color.color()
                     else interval.color.color()))

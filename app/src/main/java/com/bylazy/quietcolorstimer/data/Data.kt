@@ -8,7 +8,7 @@ import java.time.Duration
 
 const val MAX_INTERVAL_NAME_LENGTH = 12
 const val MAX_TIMER_NAME_LENGTH = 25
-const val MIN_INTERVAL_DURATION = 5
+const val MIN_INTERVAL_DURATION = 3
 const val MAX_INTERVAL_DURATION = 600
 
 const val NEW_TIMER_NAME = "New Timer"
@@ -16,7 +16,7 @@ const val NEW_TIMER_NAME = "New Timer"
 const val NEW_INTERVAL_NAME = "Interval"
 
 val NEW_TIMER = InTimer(name = NEW_TIMER_NAME,
-    description = "...description...",
+    description = "Add description",
     link = "",
     pinned = false,
     type = TimerType.OTHER)

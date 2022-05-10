@@ -270,7 +270,8 @@ fun TimerEditor(
                                 else -> R.drawable.ic_big_common
                             }
                         ),
-                        contentDescription = "Timer type"
+                        contentDescription = "Timer type",
+                        modifier = Modifier.size(24.dp)
                     )
                 }, trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(
@@ -533,7 +534,7 @@ fun IntervalDetails(
                     TextField(value = when (sound) {
                         IntervalSignal.SILENT -> "Silent"
                         IntervalSignal.SOUND -> "Sound"
-                        IntervalSignal.VIBRATION -> "Vibration"
+                        IntervalSignal.VIBRATION -> "Vibro"
                     },
                         onValueChange = {},
                         readOnly = true,
@@ -755,9 +756,9 @@ fun ColorSelector(initial: Color, onChange: (Color) -> Unit) {
             Spacer(modifier = Modifier.size(4.dp))
             Box(
                 modifier = Modifier
-                    .width(1.dp)
+                    .width(2.dp)
                     .height(48.dp)
-                    .background(color = MaterialTheme.colors.secondary)
+                    .background(color = MaterialTheme.colors.primaryVariant)
             )
             Spacer(modifier = Modifier.size(4.dp))
             LazyRow(state = listState) {
