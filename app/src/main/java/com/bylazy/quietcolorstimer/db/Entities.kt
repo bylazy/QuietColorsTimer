@@ -3,6 +3,7 @@ package com.bylazy.quietcolorstimer.db
 import androidx.room.*
 import androidx.room.ForeignKey.CASCADE
 import com.bylazy.quietcolorstimer.data.IntervalSignal
+import com.bylazy.quietcolorstimer.data.IntervalSound
 import com.bylazy.quietcolorstimer.data.IntervalType
 import com.bylazy.quietcolorstimer.data.TimerType
 
@@ -23,6 +24,10 @@ data class Interval(
     val color: String,
     @ColumnInfo(defaultValue = "SILENT")
     val signal: IntervalSignal,
+    @ColumnInfo(defaultValue = "KNUCKLE")
+    val sound: IntervalSound,
+    @ColumnInfo(defaultValue = "")
+    val customSoundUri: String,
     val type: IntervalType
 )
 

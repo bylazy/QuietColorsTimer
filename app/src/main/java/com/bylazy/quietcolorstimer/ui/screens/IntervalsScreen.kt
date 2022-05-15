@@ -1,6 +1,12 @@
 package com.bylazy.quietcolorstimer.ui.screens
 
+import android.content.Intent
 import android.content.res.Configuration
+import android.database.Cursor
+import android.net.Uri
+import android.provider.OpenableColumns
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -17,11 +23,13 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextRange
@@ -421,7 +429,7 @@ fun IntervalListItem(
     }    
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun IntervalDetails(
     interval: Interval,
@@ -429,114 +437,71 @@ fun IntervalDetails(
     onDone: (Interval) -> Unit,
     onCancel: () -> Unit
 ) {
-    var name by remember { mutableStateOf(interval.name) }
-    var duration by remember { mutableStateOf(interval.duration) }
-    var type by remember { mutableStateOf(interval.type) }
-    var sound by remember { mutableStateOf(interval.signal) }
-    var color by remember { mutableStateOf(interval.color.color()) }
+    val ctx = LocalContext.current
+
+    var name by rememberSaveable { mutableStateOf(interval.name) }
+    var duration by rememberSaveable { mutableStateOf(interval.duration) }
+    var type by rememberSaveable { mutableStateOf(interval.type) }
+    var signal by rememberSaveable { mutableStateOf(interval.signal) }
+    var color by remember { mutableStateOf(interval.color.color()) } //todo - saver
+    var sound by rememberSaveable { mutableStateOf(interval.sound)}
+    var uri by rememberSaveable { mutableStateOf(interval.customSoundUri)}
+    var fileName by rememberSaveable { mutableStateOf("")}
     var typeSelectorExpanded by remember { mutableStateOf(false) }
+    var signalSelectorExpanded by remember { mutableStateOf(false) }
     var soundSelectorExpanded by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
+    val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.OpenDocument()) {
+        it?.let {
+            ctx.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            uri = it.toString()
+        }
+    }
+    LaunchedEffect(key1 = uri) {
+        var cursor: Cursor? = null
+        if (uri.isNotEmpty()) {
+            cursor = ctx.contentResolver.query(Uri.parse(uri), null, null, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    fileName = try {
+                        it.getString(it.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME))
+                    } catch (e: IllegalArgumentException) {
+                        "<unknown>"
+                    }
+                }
+            }
+        } else fileName = "<not selected>"
+        cursor?.close()
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
     ) {
-        TextField(
-            value = name,
-            onValueChange = { name = it.take(MAX_INTERVAL_NAME_LENGTH) },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text(text = "Short interval name") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = {focusManager.clearFocus()})
-        )
-        Spacer(modifier = Modifier.size(8.dp))
-        Divider()
-        Spacer(modifier = Modifier.size(8.dp))
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row {
             Column(modifier = Modifier.weight(0.5f)) {
-                ExposedDropdownMenuBox(expanded = typeSelectorExpanded,
-                    onExpandedChange = { typeSelectorExpanded = !typeSelectorExpanded }) {
-                    TextField(value = when (type) {
-                        IntervalType.BRIGHT -> "Bright"
-                        IntervalType.DARK -> "Dark"
-                        else -> "Default"
-                    },
-                        onValueChange = {},
-                        readOnly = true,
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(
-                                expanded = typeSelectorExpanded
-                            )
-                        },
-                        leadingIcon = {
-                            Icon(
-                                painter = when (type) {
-                                    IntervalType.BRIGHT -> painterResource(id = R.drawable.ic_int_type_bright)
-                                    IntervalType.DARK -> painterResource(id = R.drawable.ic_int_type_dark)
-                                    else -> painterResource(id = R.drawable.ic_int_type_default)
-                                },
-                                contentDescription = "Type"
-                            )
-                        })
-                    ExposedDropdownMenu(expanded = typeSelectorExpanded,
-                        onDismissRequest = { typeSelectorExpanded = false }) {
-                        DropdownMenuItem(onClick = {
-                            type = IntervalType.BRIGHT
-                            typeSelectorExpanded = false
-                        }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_int_type_bright),
-                                contentDescription = "Type"
-                            )
-                            Spacer(modifier = Modifier.size(4.dp))
-                            Text(
-                                text = "Bright",
-                                modifier = Modifier.align(Alignment.CenterVertically)
-                            )
-                        }
-                        DropdownMenuItem(onClick = {
-                            type = IntervalType.DARK
-                            typeSelectorExpanded = false
-                        }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_int_type_dark),
-                                contentDescription = "Type"
-                            )
-                            Spacer(modifier = Modifier.size(4.dp))
-                            Text(
-                                text = "Dark",
-                                modifier = Modifier.align(Alignment.CenterVertically)
-                            )
-                        }
-                        DropdownMenuItem(onClick = {
-                            type = IntervalType.DEFAULT
-                            typeSelectorExpanded = false
-                        }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_int_type_default),
-                                contentDescription = "Type"
-                            )
-                            Spacer(modifier = Modifier.size(4.dp))
-                            Text(
-                                text = "Default",
-                                modifier = Modifier.align(Alignment.CenterVertically)
-                            )
-                        }
-                    }
-                }
+                TextField(
+                    value = name,
+                    onValueChange = { name = it.take(MAX_INTERVAL_NAME_LENGTH) },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(text = "Short interval name") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = {focusManager.clearFocus()}),
+                    colors = TextFieldDefaults
+                        .textFieldColors(focusedLabelColor = MaterialTheme.colors.onPrimary,
+                            focusedIndicatorColor = MaterialTheme.colors.onPrimary,
+                            cursorColor = MaterialTheme.colors.onPrimary)
+                )
             }
             Spacer(modifier = Modifier.size(8.dp))
             Column(modifier = Modifier.weight(0.5f)) {
-                ExposedDropdownMenuBox(expanded = soundSelectorExpanded,
-                    onExpandedChange = { soundSelectorExpanded = !soundSelectorExpanded }) {
-                    TextField(value = when (sound) {
-                        IntervalSignal.SILENT -> "Silent"
-                        IntervalSignal.SOUND -> "Sound"
-                        IntervalSignal.VIBRATION -> "Vibro"
-                    },
+                ExposedDropdownMenuBox(expanded = typeSelectorExpanded,
+                    onExpandedChange = { typeSelectorExpanded = !typeSelectorExpanded }) {
+                    TextField(value = intervalTypeList[type]?.first?:"Backlit type",
                         onValueChange = {},
+                        label = { Text(text = "Backlit") },
+                        modifier = Modifier.fillMaxWidth(),
                         readOnly = true,
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(
@@ -545,57 +510,31 @@ fun IntervalDetails(
                         },
                         leadingIcon = {
                             Icon(
-                                painter = when (sound) {
-                                    IntervalSignal.SILENT -> painterResource(id = R.drawable.ic_int_sound_silent)
-                                    IntervalSignal.SOUND -> painterResource(id = R.drawable.ic_int_sound_quiet)
-                                    IntervalSignal.VIBRATION -> painterResource(id = R.drawable.ic_int_sound_vibro)
-                                },
-                                contentDescription = "Sound"
-                            )
-                        })
-                    ExposedDropdownMenu(expanded = soundSelectorExpanded,
-                        onDismissRequest = { soundSelectorExpanded = false }) {
-                        DropdownMenuItem(onClick = {
-                            sound = IntervalSignal.SILENT
-                            soundSelectorExpanded = false
-                        }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_int_sound_silent),
-                                contentDescription = "Sound"
-                            )
-                            Spacer(modifier = Modifier.size(4.dp))
-                            Text(
-                                text = "Silent",
-                                modifier = Modifier.align(Alignment.CenterVertically)
-                            )
-                        }
-                        DropdownMenuItem(onClick = {
-                            sound = IntervalSignal.SOUND
-                            soundSelectorExpanded = false
-                        }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_int_sound_quiet),
+                                painter = painterResource(id = intervalTypeList[type]?.second?:R.drawable.ic_int_type_default),
                                 contentDescription = "Type"
                             )
-                            Spacer(modifier = Modifier.size(4.dp))
-                            Text(
-                                text = "Sound",
-                                modifier = Modifier.align(Alignment.CenterVertically)
-                            )
-                        }
-                        DropdownMenuItem(onClick = {
-                            sound = IntervalSignal.VIBRATION
-                            soundSelectorExpanded = false
-                        }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_int_sound_vibro),
-                                contentDescription = "Type"
-                            )
-                            Spacer(modifier = Modifier.size(4.dp))
-                            Text(
-                                text = "Vibration",
-                                modifier = Modifier.align(Alignment.CenterVertically)
-                            )
+                        },
+                        colors = TextFieldDefaults
+                            .textFieldColors(focusedLabelColor = MaterialTheme.colors.onPrimary,
+                                focusedIndicatorColor = MaterialTheme.colors.onPrimary,
+                                cursorColor = MaterialTheme.colors.onPrimary))
+                    ExposedDropdownMenu(expanded = typeSelectorExpanded,
+                        onDismissRequest = { typeSelectorExpanded = false }) {
+                        intervalTypeList.forEach {
+                            DropdownMenuItem(onClick = {
+                                type = it.key
+                                typeSelectorExpanded = false
+                            }) {
+                                Icon(
+                                    painter = painterResource(id = it.value.second),
+                                    contentDescription = "Type"
+                                )
+                                Spacer(modifier = Modifier.size(4.dp))
+                                Text(
+                                    text = it.value.first,
+                                    modifier = Modifier.align(Alignment.CenterVertically)
+                                )
+                            }
                         }
                     }
                 }
@@ -604,9 +543,117 @@ fun IntervalDetails(
         Spacer(modifier = Modifier.size(8.dp))
         Divider()
         Spacer(modifier = Modifier.size(8.dp))
+        Row {
+            Column(modifier = Modifier.weight(0.5f)) {
+                ExposedDropdownMenuBox(expanded = signalSelectorExpanded,
+                    onExpandedChange = { signalSelectorExpanded = !signalSelectorExpanded }) {
+                    TextField(value = intervalSignalList[signal]?.first?:"Sound",
+                        onValueChange = {},
+                        modifier = Modifier.fillMaxWidth(),
+                        readOnly = true,
+                        singleLine = true,
+                        label = { Text(text = "Signal")},
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(
+                                expanded = typeSelectorExpanded
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = intervalSignalList[signal]?.second?:R.drawable.ic_int_sound_silent),
+                                contentDescription = "Sound"
+                            )
+                        },
+                        colors = TextFieldDefaults
+                            .textFieldColors(focusedLabelColor = MaterialTheme.colors.onPrimary,
+                                focusedIndicatorColor = MaterialTheme.colors.onPrimary,
+                                cursorColor = MaterialTheme.colors.onPrimary)
+                    )
+                    ExposedDropdownMenu(expanded = signalSelectorExpanded,
+                        onDismissRequest = { signalSelectorExpanded = false }) {
+                        intervalSignalList.forEach {
+                            DropdownMenuItem(onClick = {
+                                signal = it.key
+                                signalSelectorExpanded = false
+                            }) {
+                                Icon(
+                                    painter = painterResource(id = it.value.second),
+                                    contentDescription = "Sound"
+                                )
+                                Spacer(modifier = Modifier.size(4.dp))
+                                Text(
+                                    text = it.value.first,
+                                    modifier = Modifier.align(Alignment.CenterVertically)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.size(8.dp))
+            Column(modifier = Modifier.weight(0.5f)) {
+                ExposedDropdownMenuBox(expanded = soundSelectorExpanded,
+                    onExpandedChange = {soundSelectorExpanded = !soundSelectorExpanded}) {
+                    TextField(value = soundsList[sound]?.first?:"Sound",
+                        onValueChange = {},
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(text = "Sound")},
+                        singleLine = true,
+                        readOnly = true,
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(
+                                expanded = typeSelectorExpanded
+                            )
+                        },
+                        colors = TextFieldDefaults
+                            .textFieldColors(focusedLabelColor = MaterialTheme.colors.onPrimary,
+                                focusedIndicatorColor = MaterialTheme.colors.onPrimary,
+                                cursorColor = MaterialTheme.colors.onPrimary)
+                    )
+                    ExposedDropdownMenu(expanded = soundSelectorExpanded,
+                        onDismissRequest = { soundSelectorExpanded = false }) {
+                        soundsList.forEach {
+                            DropdownMenuItem(onClick = {
+                                sound = it.key
+                                soundSelectorExpanded = false
+                                //todo - demo play
+                            }) {
+                                Text(text = it.value.first)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (sound == IntervalSound.CUSTOM) {
+            Spacer(modifier = Modifier.size(8.dp))
+            Divider()
+            Spacer(modifier = Modifier.size(8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = "Custom sound: $fileName")
+                Spacer(modifier = Modifier
+                    .size(8.dp)
+                    .weight(1f))
+                RoundIconButton(onClick = {
+                        launcher.launch(arrayOf("audio/*"))
+                    },
+                    imageVector = Icons.Default.Refresh,
+                    desc = "Select Sound")
+                Spacer(modifier = Modifier
+                    .size(8.dp))
+                RoundIconButton(onClick = {
+                    //
+                },
+                    imageVector = Icons.Default.PlayArrow,
+                    desc = "Play")
+            }
+        }
+        Spacer(modifier = Modifier.size(8.dp))
+        Divider()
+        Spacer(modifier = Modifier.size(8.dp))
         //todo new?
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = "Duration (sec):")
+            Text(text = "Duration (s):")
             Spacer(
                 modifier = Modifier
                     .size(8.dp)
@@ -653,7 +700,9 @@ fun IntervalDetails(
                             name = name.take(MAX_INTERVAL_NAME_LENGTH).ifBlank { "Interval" },
                             duration = duration.coerceIn(MIN_INTERVAL_DURATION, MAX_INTERVAL_DURATION),
                             type = type,
-                            signal = sound,
+                            signal = signal,
+                            sound = sound,
+                            customSoundUri = uri,
                             color = color.string()
                         )
                     )
@@ -700,8 +749,9 @@ fun IntervalRowTop(
                 painter = painterResource(
                     id = when (interval.signal) {
                         IntervalSignal.SILENT -> R.drawable.ic_int_sound_silent
-                        IntervalSignal.SOUND -> R.drawable.ic_int_sound_quiet
+                        IntervalSignal.SOUND -> R.drawable.ic_int_sound_full
                         IntervalSignal.VIBRATION -> R.drawable.ic_int_sound_vibro
+                        IntervalSignal.SOUND_START -> R.drawable.ic_int_sound_start
                     }
                 ),
                 contentDescription = "Sound",

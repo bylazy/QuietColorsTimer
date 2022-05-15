@@ -2,9 +2,9 @@ package com.bylazy.quietcolorstimer.data
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import com.bylazy.quietcolorstimer.R
 import com.bylazy.quietcolorstimer.db.InTimer
 import com.bylazy.quietcolorstimer.db.Interval
-import java.time.Duration
 
 const val MAX_INTERVAL_NAME_LENGTH = 12
 const val MAX_TIMER_NAME_LENGTH = 25
@@ -27,6 +27,8 @@ val NEW_INTERVAL = Interval(timerId = 0,
     duration = 30,
     color = Color.Green.string(),
     signal = IntervalSignal.SILENT,
+    sound = IntervalSound.KNUCKLE,
+    customSoundUri = "",
     type = IntervalType.DEFAULT)
 
 val COOLDOWN_INTERVAL = Interval(timerId = 0,
@@ -35,6 +37,8 @@ val COOLDOWN_INTERVAL = Interval(timerId = 0,
     duration = 5,
     color = Color.Black.string(),
     signal = IntervalSignal.SILENT,
+    sound = IntervalSound.KNUCKLE,
+    customSoundUri = "",
     type = IntervalType.DEFAULT)
 
 val FINISH_INTERVAL = Interval(timerId = 0,
@@ -43,14 +47,92 @@ val FINISH_INTERVAL = Interval(timerId = 0,
     duration = 1,
     color = Color.Black.string(),
     signal = IntervalSignal.SILENT,
+    sound = IntervalSound.KNUCKLE,
+    customSoundUri = "",
     type = IntervalType.DEFAULT)
 
 
 enum class IntervalType {DEFAULT, BRIGHT, DARK, OFF}
 
+val intervalTypeList = mapOf(
+    IntervalType.DEFAULT to Pair("Default", R.drawable.ic_int_type_default),
+    IntervalType.BRIGHT to Pair("Bright", R.drawable.ic_int_type_bright),
+    IntervalType.DARK to Pair("Dark", R.drawable.ic_int_type_dark)
+)
+
 enum class TimerType {WORKOUT, YOGA, COOK, OTHER}
 
-enum class IntervalSignal {SILENT, SOUND, VIBRATION}
+val timerTypeList = mapOf(
+    TimerType.WORKOUT to Pair("Workout", R.drawable.ic_big_workout),
+    TimerType.YOGA to Pair("Yoga/Relax", R.drawable.ic_big_yoga),
+    TimerType.COOK to Pair("Cook", R.drawable.ic_big_cook),
+    TimerType.OTHER to Pair("Common", R.drawable.ic_big_common)
+)
+
+enum class IntervalSignal {SILENT, SOUND, VIBRATION, SOUND_START}
+
+val intervalSignalList = mapOf(
+    IntervalSignal.SILENT to Pair("Silent", R.drawable.ic_int_sound_silent),
+    IntervalSignal.SOUND to Pair("Sound", R.drawable.ic_int_sound_full),
+    IntervalSignal.VIBRATION to Pair("Vibrate", R.drawable.ic_int_sound_vibro),
+    IntervalSignal.SOUND_START to Pair("Start sound", R.drawable.ic_int_sound_start)
+)
+
+enum class IntervalSound(i: Int) {
+    CUSTOM(0),
+    ALLEYESONME(R.raw.s_alleyesonme_ok),
+    BELL(R.raw.s_bell_ok),
+    CLEARLY(R.raw.s_clearly_ok),
+    CROAK(R.raw.s_croak_ok),
+    EXQUISITE(R.raw.s_exquisite_ok),
+    FORSURE(R.raw.s_forsure_ok),
+    HOLLOW(R.raw.s_hollow_ok),
+    INTUITION(R.raw.s_intuition_ok),
+    JUNTOS(R.raw.s_juntos_ok),
+    KNOB(R.raw.s_knob_ok),
+    KNOCK(R.raw.s_knock_ok),
+    KNUCKLE(R.raw.s_knuckle_ok),
+    LIGHT(R.raw.s_light_ok),
+    METOO(R.raw.s_metoo_ok),
+    NAILED(R.raw.s_nailed_ok),
+    PERCUSSION(R.raw.s_percussion_ok),
+    QUICK(R.raw.s_quick_ok),
+    QUIETKNOCK(R.raw.s_quietknock_ok),
+    SERVED(R.raw.s_served_ok),
+    SUPPRESSED(R.raw.s_suppressed_ok),
+    TICK(R.raw.s_tick_ok),
+    WET(R.raw.s_wet_ok),
+    WHEN(R.raw.s_when_ok),
+    YOUKNOW(R.raw.s_youknow_ok)
+}
+
+val soundsList = mapOf(
+    IntervalSound.CUSTOM to Pair("Custom", 0),
+    IntervalSound.ALLEYESONME to Pair("On me", R.raw.s_alleyesonme_ok),
+    IntervalSound.BELL to Pair("Bell", R.raw.s_bell_ok),
+    IntervalSound.CLEARLY to Pair("Clearly", R.raw.s_clearly_ok),
+    IntervalSound.CROAK to Pair("Croak", R.raw.s_croak_ok),
+    IntervalSound.EXQUISITE to Pair("Exquisite", R.raw.s_exquisite_ok),
+    IntervalSound.FORSURE to Pair("For sure", R.raw.s_forsure_ok),
+    IntervalSound.HOLLOW to Pair("Hollow", R.raw.s_hollow_ok),
+    IntervalSound.INTUITION to Pair("Intuition", R.raw.s_intuition_ok),
+    IntervalSound.JUNTOS to Pair("Juntos", R.raw.s_juntos_ok),
+    IntervalSound.KNOB to Pair("Knob", R.raw.s_knob_ok),
+    IntervalSound.KNOCK to Pair("Knock", R.raw.s_knock_ok),
+    IntervalSound.KNUCKLE to Pair("Knuckle", R.raw.s_knuckle_ok),
+    IntervalSound.LIGHT to Pair("Light", R.raw.s_light_ok),
+    IntervalSound.METOO to Pair("Me too", R.raw.s_metoo_ok),
+    IntervalSound.NAILED to Pair("Nailed", R.raw.s_nailed_ok),
+    IntervalSound.PERCUSSION to Pair("Percussion", R.raw.s_percussion_ok),
+    IntervalSound.QUICK to Pair("Quick", R.raw.s_quick_ok),
+    IntervalSound.QUIETKNOCK to Pair("Quiet knock", R.raw.s_quietknock_ok),
+    IntervalSound.SERVED to Pair("Served", R.raw.s_served_ok),
+    IntervalSound.SUPPRESSED to Pair("Suppressed", R.raw.s_suppressed_ok),
+    IntervalSound.TICK to Pair("Tick", R.raw.s_tick_ok),
+    IntervalSound.WET to Pair("Wet", R.raw.s_wet_ok),
+    IntervalSound.WHEN to Pair("When", R.raw.s_when_ok),
+    IntervalSound.YOUKNOW to Pair("You know", R.raw.s_youknow_ok)
+)
 
 fun Color.string() = this.value.toString()
 

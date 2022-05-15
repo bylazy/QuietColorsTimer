@@ -10,8 +10,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Database(entities = [InTimer::class, Interval::class],
-    version = 3,
-    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3)],
+    version = 4,
+    autoMigrations = [AutoMigration(from = 1, to = 2),
+        AutoMigration(from = 2, to = 3), AutoMigration(from = 3, to = 4)],
     exportSchema = true)
 abstract class TimerDB: RoomDatabase(){
     abstract fun timerDAO(): TimerDAO
@@ -22,7 +23,7 @@ abstract class TimerDB: RoomDatabase(){
         fun getInstance(context: Context, coroutineScope: CoroutineScope): TimerDB {
             return INSTANCE?: synchronized(this) {
                 val instance = Room.databaseBuilder(context.applicationContext,
-                    TimerDB::class.java, "6_timers.db")
+                    TimerDB::class.java, "timers.db")
                     .addCallback(object: RoomDatabase.Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)

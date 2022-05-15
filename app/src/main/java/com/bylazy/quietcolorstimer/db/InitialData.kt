@@ -1,10 +1,7 @@
 package com.bylazy.quietcolorstimer.db
 
 import androidx.compose.ui.graphics.Color
-import com.bylazy.quietcolorstimer.data.IntervalSignal
-import com.bylazy.quietcolorstimer.data.IntervalType
-import com.bylazy.quietcolorstimer.data.TimerType
-import com.bylazy.quietcolorstimer.data.string
+import com.bylazy.quietcolorstimer.data.*
 
 val test_timer_1 = InTimer(name = "Test timer 1",
     description = "Short description", link = "", pinned = false, type = TimerType.WORKOUT)
@@ -18,12 +15,17 @@ val test_timer_1_intervals = listOf(Interval(timerId = 0,
     duration = 33,
     color = Color.Green.string(),
     signal = IntervalSignal.SILENT,
-    type = IntervalType.BRIGHT), Interval(timerId = 0,
+    sound = IntervalSound.KNUCKLE,
+    customSoundUri = "",
+    type = IntervalType.BRIGHT),
+    Interval(timerId = 0,
     position = 2,
     name = "Interval 2",
     duration = 55,
     color = Color.Blue.string(),
     signal = IntervalSignal.SILENT,
+    sound = IntervalSound.KNUCKLE,
+    customSoundUri = "",
     type = IntervalType.DARK)
 )
 
@@ -33,12 +35,17 @@ val test_timer_2_intervals = listOf(Interval(timerId = 0,
     duration = 120,
     color = Color.Red.string(),
     signal = IntervalSignal.SILENT,
-    type = IntervalType.BRIGHT), Interval(timerId = 0,
+    sound = IntervalSound.KNUCKLE,
+    customSoundUri = "",
+    type = IntervalType.BRIGHT),
+    Interval(timerId = 0,
     position = 2,
     name = "Interval 4",
     duration = 380,
     color = Color.Yellow.string(),
     signal = IntervalSignal.SILENT,
+    sound = IntervalSound.KNUCKLE,
+    customSoundUri = "",
     type = IntervalType.DARK)
 )
 
@@ -69,6 +76,8 @@ val initial_timer_yoga_1_intervals = (0..13).mapIndexed { i, _ ->
         duration = 4,
         color = Color(0xFF5885AF).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT)
     else Interval(timerId = 0,
         position = i+1,
@@ -76,6 +85,8 @@ val initial_timer_yoga_1_intervals = (0..13).mapIndexed { i, _ ->
         duration = 4,
         color = Color(0xFF8BCD50).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT)
 } + (14..25).mapIndexed { i, _ ->
     if (i%2==0) Interval(timerId = 0,
@@ -84,6 +95,8 @@ val initial_timer_yoga_1_intervals = (0..13).mapIndexed { i, _ ->
         duration = 5,
         color = Color(0xFF5885AF).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT)
     else Interval(timerId = 0,
         position = i+1,
@@ -91,6 +104,8 @@ val initial_timer_yoga_1_intervals = (0..13).mapIndexed { i, _ ->
         duration = 5,
         color = Color(0xFF8BCD50).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT)
 } + (26..35).mapIndexed { i, _ ->
     if (i%2==0) Interval(timerId = 0,
@@ -99,6 +114,8 @@ val initial_timer_yoga_1_intervals = (0..13).mapIndexed { i, _ ->
         duration = 6,
         color = Color(0xFF5885AF).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT)
     else Interval(timerId = 0,
         position = i+1,
@@ -106,6 +123,8 @@ val initial_timer_yoga_1_intervals = (0..13).mapIndexed { i, _ ->
         duration = 6,
         color = Color(0xFF8BCD50).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT)
 } + (36..43).mapIndexed { i, _ ->
     if (i%2==0) Interval(timerId = 0,
@@ -114,6 +133,8 @@ val initial_timer_yoga_1_intervals = (0..13).mapIndexed { i, _ ->
         duration = 7,
         color = Color(0xFF5885AF).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT)
     else Interval(timerId = 0,
         position = i+1,
@@ -121,6 +142,8 @@ val initial_timer_yoga_1_intervals = (0..13).mapIndexed { i, _ ->
         duration = 7,
         color = Color(0xFF8BCD50).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT)
 } + (44..51).mapIndexed { i, _ ->
     if (i%2==0) Interval(timerId = 0,
@@ -129,6 +152,8 @@ val initial_timer_yoga_1_intervals = (0..13).mapIndexed { i, _ ->
         duration = 8,
         color = Color(0xFF5885AF).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT)
     else Interval(timerId = 0,
         position = i+1,
@@ -136,6 +161,8 @@ val initial_timer_yoga_1_intervals = (0..13).mapIndexed { i, _ ->
         duration = 8,
         color = Color(0xFF8BCD50).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT)
 }
 
@@ -165,6 +192,8 @@ val initial_timer_yoga_2_intervals = (1..30).mapIndexed { _, i ->
             duration = 4,
             color = Color(0xFF5885AF).string(),
             signal = IntervalSignal.SILENT,
+            sound = IntervalSound.KNUCKLE,
+            customSoundUri = "",
             type = IntervalType.DEFAULT)
         2 -> Interval(timerId = 0,
             position = i,
@@ -172,6 +201,8 @@ val initial_timer_yoga_2_intervals = (1..30).mapIndexed { _, i ->
             duration = 4,
             color = Color(0xFFFBEE0F).string(),
             signal = IntervalSignal.SILENT,
+            sound = IntervalSound.KNUCKLE,
+            customSoundUri = "",
             type = IntervalType.DEFAULT)
         else -> Interval(timerId = 0,
             position = i,
@@ -179,6 +210,8 @@ val initial_timer_yoga_2_intervals = (1..30).mapIndexed { _, i ->
             duration = 8,
             color = Color(0xFF8BCD50).string(),
             signal = IntervalSignal.SILENT,
+            sound = IntervalSound.KNUCKLE,
+            customSoundUri = "",
             type = IntervalType.DEFAULT)
     }
 }
@@ -209,6 +242,8 @@ val initial_timer_yoga_3_intervals = (1..32).mapIndexed { _, i ->
             duration = 4,
             color = Color(0xFF5885AF).string(),
             signal = IntervalSignal.SILENT,
+            sound = IntervalSound.KNUCKLE,
+            customSoundUri = "",
             type = IntervalType.DEFAULT)
         2 -> Interval(timerId = 0,
             position = i,
@@ -216,6 +251,8 @@ val initial_timer_yoga_3_intervals = (1..32).mapIndexed { _, i ->
             duration = 4,
             color = Color(0xFFFBEE0F).string(),
             signal = IntervalSignal.SILENT,
+            sound = IntervalSound.KNUCKLE,
+            customSoundUri = "",
             type = IntervalType.DEFAULT)
         3 -> Interval(timerId = 0,
             position = i,
@@ -223,6 +260,8 @@ val initial_timer_yoga_3_intervals = (1..32).mapIndexed { _, i ->
             duration = 4,
             color = Color(0xFF8BCD50).string(),
             signal = IntervalSignal.SILENT,
+            sound = IntervalSound.KNUCKLE,
+            customSoundUri = "",
             type = IntervalType.DEFAULT)
         else -> Interval(timerId = 0,
             position = i,
@@ -230,6 +269,8 @@ val initial_timer_yoga_3_intervals = (1..32).mapIndexed { _, i ->
             duration = 4,
             color = Color(0xFFFBEE0F).string(),
             signal = IntervalSignal.SILENT,
+            sound = IntervalSound.KNUCKLE,
+            customSoundUri = "",
             type = IntervalType.DEFAULT)
     }
 }
@@ -261,6 +302,8 @@ val initial_timer_yoga_4_intervals = listOf(
         duration = 40,
         color = Color(0xFFFBEE0F).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT),
     Interval(timerId = 0,
         position = 2,
@@ -268,6 +311,8 @@ val initial_timer_yoga_4_intervals = listOf(
         duration = 90,
         color = Color(0xFFE930C0).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT),
     Interval(timerId = 0,
         position = 3,
@@ -275,6 +320,8 @@ val initial_timer_yoga_4_intervals = listOf(
         duration = 90,
         color = Color(0xFF41729F).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT),
     Interval(timerId = 0,
         position = 4,
@@ -282,6 +329,8 @@ val initial_timer_yoga_4_intervals = listOf(
         duration = 60,
         color = Color(0xFFFFC5D0).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT),
     Interval(timerId = 0,
         position = 5,
@@ -289,6 +338,8 @@ val initial_timer_yoga_4_intervals = listOf(
         duration = 120,
         color = Color(0xFF81B622).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT),
     Interval(timerId = 0,
         position = 6,
@@ -296,6 +347,8 @@ val initial_timer_yoga_4_intervals = listOf(
         duration = 120,
         color = Color(0xFF31D1D0).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT),
     Interval(timerId = 0,
         position = 7,
@@ -303,6 +356,8 @@ val initial_timer_yoga_4_intervals = listOf(
         duration = 120,
         color = Color(0xFFB637FB).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT)
 )
 
@@ -335,6 +390,8 @@ val initial_timer_1_workout_intervals = listOf(
         duration = 60,
         color = Color(0xFFFBEE0F).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -344,6 +401,8 @@ val initial_timer_1_workout_intervals = listOf(
         duration = 20,
         color = Color(0xFF910C00).string(),
         signal = IntervalSignal.SOUND,
+        sound = IntervalSound.EXQUISITE,
+        customSoundUri = "",
         type = IntervalType.BRIGHT
     ),
     Interval(
@@ -353,6 +412,8 @@ val initial_timer_1_workout_intervals = listOf(
         duration = 10,
         color = Color(0xFF3D550C).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -362,6 +423,8 @@ val initial_timer_1_workout_intervals = listOf(
         duration = 20,
         color = Color(0xFF910C00).string(),
         signal = IntervalSignal.SOUND,
+        sound = IntervalSound.EXQUISITE,
+        customSoundUri = "",
         type = IntervalType.BRIGHT
     ),
     Interval(
@@ -371,6 +434,8 @@ val initial_timer_1_workout_intervals = listOf(
         duration = 10,
         color = Color(0xFF3D550C).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -380,6 +445,8 @@ val initial_timer_1_workout_intervals = listOf(
         duration = 20,
         color = Color(0xFF910C00).string(),
         signal = IntervalSignal.SOUND,
+        sound = IntervalSound.EXQUISITE,
+        customSoundUri = "",
         type = IntervalType.BRIGHT
     ),
     Interval(
@@ -389,6 +456,8 @@ val initial_timer_1_workout_intervals = listOf(
         duration = 10,
         color = Color(0xFF3D550C).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -398,6 +467,8 @@ val initial_timer_1_workout_intervals = listOf(
         duration = 20,
         color = Color(0xFF910C00).string(),
         signal = IntervalSignal.SOUND,
+        sound = IntervalSound.EXQUISITE,
+        customSoundUri = "",
         type = IntervalType.BRIGHT
     ),
     Interval(
@@ -407,6 +478,8 @@ val initial_timer_1_workout_intervals = listOf(
         duration = 10,
         color = Color(0xFF3D550C).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -416,6 +489,8 @@ val initial_timer_1_workout_intervals = listOf(
         duration = 20,
         color = Color(0xFF910C00).string(),
         signal = IntervalSignal.SOUND,
+        sound = IntervalSound.EXQUISITE,
+        customSoundUri = "",
         type = IntervalType.BRIGHT
     ),
     Interval(
@@ -425,6 +500,8 @@ val initial_timer_1_workout_intervals = listOf(
         duration = 10,
         color = Color(0xFF3D550C).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -434,6 +511,8 @@ val initial_timer_1_workout_intervals = listOf(
         duration = 20,
         color = Color(0xFF910C00).string(),
         signal = IntervalSignal.SOUND,
+        sound = IntervalSound.EXQUISITE,
+        customSoundUri = "",
         type = IntervalType.BRIGHT
     ),
     Interval(
@@ -443,6 +522,8 @@ val initial_timer_1_workout_intervals = listOf(
         duration = 10,
         color = Color(0xFF3D550C).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -452,6 +533,8 @@ val initial_timer_1_workout_intervals = listOf(
         duration = 20,
         color = Color(0xFF910C00).string(),
         signal = IntervalSignal.SOUND,
+        sound = IntervalSound.EXQUISITE,
+        customSoundUri = "",
         type = IntervalType.BRIGHT
     ),
     Interval(
@@ -461,6 +544,8 @@ val initial_timer_1_workout_intervals = listOf(
         duration = 10,
         color = Color(0xFF3D550C).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -470,6 +555,8 @@ val initial_timer_1_workout_intervals = listOf(
         duration = 20,
         color = Color(0xFF910C00).string(),
         signal = IntervalSignal.SOUND,
+        sound = IntervalSound.EXQUISITE,
+        customSoundUri = "",
         type = IntervalType.BRIGHT
     ),
     Interval(
@@ -479,6 +566,8 @@ val initial_timer_1_workout_intervals = listOf(
         duration = 10,
         color = Color(0xFF3D550C).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     )
 )
@@ -511,6 +600,8 @@ val initial_timer_workout_2_intervals = (0..11).map {
             duration = 60,
             color = Color(0xFFFBEE0F).string(),
             signal = IntervalSignal.SILENT,
+            sound = IntervalSound.KNUCKLE,
+            customSoundUri = "",
             type = IntervalType.DEFAULT
         )
         it % 2 == 1 -> Interval(
@@ -520,6 +611,8 @@ val initial_timer_workout_2_intervals = (0..11).map {
             duration = 60,
             color = Color(0xFF910C00).string(),
             signal = IntervalSignal.SOUND,
+            sound = IntervalSound.EXQUISITE,
+            customSoundUri = "",
             type = IntervalType.BRIGHT
         )
         else -> Interval(
@@ -529,6 +622,8 @@ val initial_timer_workout_2_intervals = (0..11).map {
             duration = 60,
             color = Color(0xFF3D550C).string(),
             signal = IntervalSignal.SILENT,
+            sound = IntervalSound.KNUCKLE,
+            customSoundUri = "",
             type = IntervalType.DEFAULT
         )
     }
@@ -557,6 +652,8 @@ val initial_timer_workout_3_intervals = listOf(
         duration = 20,
         color = Color(0xFFCC5216).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -566,6 +663,8 @@ val initial_timer_workout_3_intervals = listOf(
         duration = 20,
         color = Color(0xFF81B622).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -575,6 +674,8 @@ val initial_timer_workout_3_intervals = listOf(
         duration = 30,
         color = Color(0xFFCC5216).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -584,6 +685,8 @@ val initial_timer_workout_3_intervals = listOf(
         duration = 20,
         color = Color(0xFF81B622).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -593,6 +696,8 @@ val initial_timer_workout_3_intervals = listOf(
         duration = 40,
         color = Color(0xFFCC5216).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -602,6 +707,8 @@ val initial_timer_workout_3_intervals = listOf(
         duration = 20,
         color = Color(0xFF81B622).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -611,6 +718,8 @@ val initial_timer_workout_3_intervals = listOf(
         duration = 60,
         color = Color(0xFFCC5216).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -620,6 +729,8 @@ val initial_timer_workout_3_intervals = listOf(
         duration = 20,
         color = Color(0xFF81B622).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -629,6 +740,8 @@ val initial_timer_workout_3_intervals = listOf(
         duration = 120,
         color = Color(0xFFCC5216).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     )
 )
@@ -657,6 +770,8 @@ val initial_timer_workout_4_intervals = (1..19).map {
             duration = 30,
             color = Color(0xFFFBEE0F).string(),
             signal = IntervalSignal.SILENT,
+            sound = IntervalSound.KNUCKLE,
+            customSoundUri = "",
             type = IntervalType.DEFAULT
         )
         2 -> Interval(
@@ -666,6 +781,8 @@ val initial_timer_workout_4_intervals = (1..19).map {
             duration = 30,
             color = Color(0xFFC3E0E5).string(),
             signal = IntervalSignal.VIBRATION,
+            sound = IntervalSound.KNUCKLE,
+            customSoundUri = "",
             type = IntervalType.DEFAULT
         )
         3 -> Interval(
@@ -675,6 +792,8 @@ val initial_timer_workout_4_intervals = (1..19).map {
             duration = 30,
             color = Color(0xFFFFC5D0).string(),
             signal = IntervalSignal.SILENT,
+            sound = IntervalSound.KNUCKLE,
+            customSoundUri = "",
             type = IntervalType.DEFAULT
         )
         4 -> Interval(
@@ -684,6 +803,8 @@ val initial_timer_workout_4_intervals = (1..19).map {
             duration = 30,
             color = Color(0xFF3AF7F0).string(),
             signal = IntervalSignal.VIBRATION,
+            sound = IntervalSound.KNUCKLE,
+            customSoundUri = "",
             type = IntervalType.DEFAULT
         )
         else -> Interval(
@@ -693,6 +814,8 @@ val initial_timer_workout_4_intervals = (1..19).map {
             duration = 30,
             color = Color(0xFF81B622).string(),
             signal = IntervalSignal.SILENT,
+            sound = IntervalSound.KNUCKLE,
+            customSoundUri = "",
             type = IntervalType.DEFAULT
         )
     }
@@ -716,6 +839,8 @@ val initial_timer_common_1_intervals = listOf(
         duration = 30,
         color = Color(0xFF81B622).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -725,6 +850,8 @@ val initial_timer_common_1_intervals = listOf(
         duration = 30,
         color = Color(0xFF274472).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -734,6 +861,8 @@ val initial_timer_common_1_intervals = listOf(
         duration = 30,
         color = Color(0xFFB22A80).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -743,6 +872,8 @@ val initial_timer_common_1_intervals = listOf(
         duration = 30,
         color = Color(0xFF31D1D0).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     )
 )
@@ -771,6 +902,8 @@ val initial_timer_cook_1_intervals = listOf(
         duration = 60,
         color = Color(0xFFCC5216).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -780,6 +913,8 @@ val initial_timer_cook_1_intervals = listOf(
         duration = 10,
         color = Color(0xFFB637FB).string(),
         signal = IntervalSignal.VIBRATION,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -789,6 +924,8 @@ val initial_timer_cook_1_intervals = listOf(
         duration = 300,
         color = Color(0xFF910C00).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -798,6 +935,8 @@ val initial_timer_cook_1_intervals = listOf(
         duration = 10,
         color = Color(0xFFB637FB).string(),
         signal = IntervalSignal.VIBRATION,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -807,6 +946,8 @@ val initial_timer_cook_1_intervals = listOf(
         duration = 240,
         color = Color(0xFF910C00).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -816,6 +957,8 @@ val initial_timer_cook_1_intervals = listOf(
         duration = 10,
         color = Color(0xFFB637FB).string(),
         signal = IntervalSignal.VIBRATION,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -825,6 +968,8 @@ val initial_timer_cook_1_intervals = listOf(
         duration = 120,
         color = Color(0xFF274472).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     )
 )
@@ -849,6 +994,8 @@ val initial_timer_cook_2_intervals = listOf(
         duration = 99,
         color = Color(0xFFFEDE00).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -858,6 +1005,8 @@ val initial_timer_cook_2_intervals = listOf(
         duration = 15,
         color = Color(0xFF7E1E80).string(),
         signal = IntervalSignal.SOUND,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -867,6 +1016,8 @@ val initial_timer_cook_2_intervals = listOf(
         duration = 375,
         color = Color(0xFFFB6090).string(),
         signal = IntervalSignal.SILENT,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
     ),
     Interval(
@@ -876,6 +1027,8 @@ val initial_timer_cook_2_intervals = listOf(
         duration = 15,
         color = Color(0xFF31D1D0).string(),
         signal = IntervalSignal.SOUND,
+        sound = IntervalSound.KNUCKLE,
+        customSoundUri = "",
         type = IntervalType.DEFAULT
-    ),
+    )
 )
