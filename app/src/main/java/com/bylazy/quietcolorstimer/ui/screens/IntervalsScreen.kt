@@ -60,6 +60,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun IntervalScreen(
     intervalsViewModel: IntervalsViewModel,
+    loadSound: (Uri) -> Unit,
+    playSound: () -> Unit,
+    playOrStop: () -> Unit,
     navController: NavController
 ) {
     val scope = rememberCoroutineScope()
@@ -115,6 +118,9 @@ fun IntervalScreen(
                 onUp = intervalsViewModel::upInterval,
                 onDown = intervalsViewModel::downInterval,
                 onSelect = intervalsViewModel::selectInterval,
+                loadSound = loadSound,
+                playSound = playSound,
+                playOrStop = playOrStop,
                 paddingValues = paddingValues
             )
         }
@@ -169,6 +175,9 @@ fun IntervalsList(
     onUp: (Interval) -> Unit,
     onDown: (Interval) -> Unit,
     onSelect: (Interval) -> Unit,
+    loadSound: (Uri) -> Unit,
+    playSound: () -> Unit,
+    playOrStop: () -> Unit,
     paddingValues: PaddingValues
 ) {
     val state = rememberLazyListState()
@@ -188,7 +197,10 @@ fun IntervalsList(
                     onCopy = onCopy,
                     onUp = onUp,
                     onDown = onDown,
-                    onSelect = onSelect
+                    onSelect = onSelect,
+                    loadSound = loadSound,
+                    playSound = playSound,
+                    playOrStop = playOrStop
                 )
             }
             Spacer(modifier = Modifier.size(4.dp))
@@ -259,82 +271,46 @@ fun TimerEditor(
         Spacer(modifier = Modifier.size(8.dp))
         ExposedDropdownMenuBox(expanded = expanded,
             onExpandedChange = { expanded = !expanded }) {
-            TextField(value = when (type) {
-                TimerType.WORKOUT -> "Workout / Training"
-                TimerType.YOGA -> "Yoga / Relax"
-                TimerType.COOK -> "Cooking"
-                else -> "Other"
-            },
+            TextField(value = timerTypeList[type]?.first?:"Type",
                 onValueChange = {},
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true,
+                singleLine = true,
                 leadingIcon = {
                     Icon(
-                        painter = painterResource(
-                            id = when (type) {
-                                TimerType.WORKOUT -> R.drawable.ic_big_workout
-                                TimerType.YOGA -> R.drawable.ic_big_yoga
-                                TimerType.COOK -> R.drawable.ic_big_cook
-                                else -> R.drawable.ic_big_common
-                            }
-                        ),
+                        painter = painterResource(timerTypeList[type]?.second?:R.drawable.ic_big_common),
                         contentDescription = "Timer type",
                         modifier = Modifier.size(24.dp)
                     )
-                }, trailingIcon = {
+                },
+                trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(
                         expanded = expanded
                     )
-                })
+                },
+                colors = TextFieldDefaults
+                    .textFieldColors(focusedLabelColor = MaterialTheme.colors.onPrimary,
+                        focusedIndicatorColor = MaterialTheme.colors.onPrimary,
+                        cursorColor = MaterialTheme.colors.onPrimary)
+            )
             ExposedDropdownMenu(expanded = expanded,
                 onDismissRequest = { expanded = false }) {
-                DropdownMenuItem(onClick = { type = TimerType.WORKOUT; expanded = false }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_big_workout),
-                        contentDescription = "Workout",
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.size(8.dp))
-                    Text(
-                        text = "Workout / Training",
-                        modifier = Modifier.align(Alignment.CenterVertically)
-                    )
-                }
-                DropdownMenuItem(onClick = { type = TimerType.YOGA; expanded = false }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_big_yoga),
-                        contentDescription = "Yoga",
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.size(8.dp))
-                    Text(
-                        text = "Yoga / Relax",
-                        modifier = Modifier.align(Alignment.CenterVertically)
-                    )
-                }
-                DropdownMenuItem(onClick = { type = TimerType.COOK; expanded = false }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_big_cook),
-                        contentDescription = "Cooking",
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.size(8.dp))
-                    Text(
-                        text = "Cooking",
-                        modifier = Modifier.align(Alignment.CenterVertically)
-                    )
-                }
-                DropdownMenuItem(onClick = { type = TimerType.OTHER; expanded = false }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_big_common),
-                        contentDescription = "Other",
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.size(8.dp))
-                    Text(
-                        text = "Other",
-                        modifier = Modifier.align(Alignment.CenterVertically)
-                    )
+                timerTypeList.forEach {
+                    DropdownMenuItem(onClick = {
+                        type = it.key
+                        expanded = false
+                    }) {
+                        Icon(
+                            painter = painterResource(it.value.second),
+                            contentDescription = it.value.first,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Text(
+                            text = it.value.first,
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        )
+                    }
                 }
             }
         }
@@ -405,7 +381,10 @@ fun IntervalListItem(
     onCopy: (Interval) -> Unit,
     onUp: (Interval) -> Unit,
     onDown: (Interval) -> Unit,
-    onSelect: (Interval) -> Unit
+    onSelect: (Interval) -> Unit,
+    loadSound: (Uri) -> Unit,
+    playSound: () -> Unit,
+    playOrStop: () -> Unit
 ) {
     ListItemCard {
         Column {
@@ -422,7 +401,10 @@ fun IntervalListItem(
                     interval = interval,
                     onDelete = onDelete,
                     onDone = onDone,
-                    onCancel = onCancel
+                    onCancel = onCancel,
+                    loadSound = loadSound,
+                    playSound = playSound,
+                    playOrStop = playOrStop
                 )
             }
         }
@@ -435,9 +417,14 @@ fun IntervalDetails(
     interval: Interval,
     onDelete: (Interval) -> Unit,
     onDone: (Interval) -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    loadSound: (Uri) -> Unit,
+    playSound: () -> Unit,
+    playOrStop: () -> Unit
 ) {
     val ctx = LocalContext.current
+
+    val scope = rememberCoroutineScope()
 
     var name by rememberSaveable { mutableStateOf(interval.name) }
     var duration by rememberSaveable { mutableStateOf(interval.duration) }
@@ -472,6 +459,12 @@ fun IntervalDetails(
             }
         } else fileName = "<not selected>"
         cursor?.close()
+    }
+    LaunchedEffect(key1 = sound) {
+        if (sound != IntervalSound.CUSTOM) {
+            loadSound(Uri.parse(resPath + sound.i))
+            playSound()
+        }
     }
     Column(
         modifier = Modifier
@@ -616,7 +609,7 @@ fun IntervalDetails(
                             DropdownMenuItem(onClick = {
                                 sound = it.key
                                 soundSelectorExpanded = false
-                                //todo - demo play
+
                             }) {
                                 Text(text = it.value.first)
                             }
@@ -630,7 +623,9 @@ fun IntervalDetails(
             Divider()
             Spacer(modifier = Modifier.size(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "Custom sound: $fileName")
+                Text(text = "Custom sound: $fileName",
+                    modifier = Modifier.fillMaxWidth(0.65f),
+                    maxLines = 1)
                 Spacer(modifier = Modifier
                     .size(8.dp)
                     .weight(1f))
@@ -642,10 +637,22 @@ fun IntervalDetails(
                 Spacer(modifier = Modifier
                     .size(8.dp))
                 RoundIconButton(onClick = {
-                    //
+                    if (uri.isNotEmpty()) {
+                        scope.launch {
+                            loadSound(Uri.parse(uri))
+                            playSound()
+                        }
+                    }
                 },
                     imageVector = Icons.Default.PlayArrow,
                     desc = "Play")
+                Spacer(modifier = Modifier
+                    .size(8.dp))
+                RoundIconButton(onClick = {
+                    playOrStop()
+                },
+                    painter = painterResource(id = R.drawable.ic_stop),
+                    desc = "Stop")
             }
         }
         Spacer(modifier = Modifier.size(8.dp))
@@ -986,9 +993,13 @@ fun IntervalRowTopPreview() {
 fun IntervalDetailsPreview() {
     QuietColorsTimerTheme {
         Surface(color = MaterialTheme.colors.background) {
-            IntervalDetails(interval = test_timer_1_intervals[0], onDelete = {}, onDone = {}) {
-
-            }
+            IntervalDetails(interval = test_timer_1_intervals[0],
+                onDelete = {},
+                onDone = {},
+                onCancel = {},
+                loadSound = {},
+                playSound = {},
+                playOrStop = {})
         }
     }
 }

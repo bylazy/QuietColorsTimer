@@ -116,6 +116,7 @@ fun HomeScreenContent(
             contentPadding = it
         ) {
             items(timerState, key = { item -> item.timer.id }) { item ->
+                
                 Row(modifier = Modifier.animateItemPlacement()) {
                     TimerListItem(
                         timer = item,

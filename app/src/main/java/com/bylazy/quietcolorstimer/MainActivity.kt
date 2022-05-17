@@ -4,7 +4,6 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.*
-import android.util.Log
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,7 +16,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.bylazy.quietcolorstimer.data.IntervalSound
 import com.bylazy.quietcolorstimer.data.IntervalType
+import com.bylazy.quietcolorstimer.data.resPath
 import com.bylazy.quietcolorstimer.ui.screens.*
 import com.bylazy.quietcolorstimer.ui.theme.QuietColorsTimerTheme
 
@@ -28,11 +29,12 @@ class MainActivity : ComponentActivity() {
     private var defaultBrightness: Float = -1f
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var vibrator: Vibrator
+    private var currentSoundUri: Uri = Uri.parse(resPath + IntervalSound.KNUCKLE.i)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         defaultBrightness = window.attributes.screenBrightness
-        mediaPlayer = MediaPlayer.create(this.applicationContext, R.raw.s_knuckle_ok)
+        mediaPlayer = MediaPlayer.create(this.applicationContext, currentSoundUri)
         vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val vManager = this.applicationContext.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
             vManager.defaultVibrator
@@ -53,6 +55,9 @@ class MainActivity : ComponentActivity() {
                             arguments = listOf(navArgument("id"){type = NavType.IntType})){
                             val intervalsViewModel = viewModel<IntervalsViewModel>()
                             IntervalScreen(intervalsViewModel = intervalsViewModel,
+                                loadSound = ::loadSound,
+                                playSound = ::playSound,
+                                playOrStop = ::stopSound,
                                 navController = navController)
                         }
                         composable("start/{id}",
@@ -77,7 +82,12 @@ class MainActivity : ComponentActivity() {
         mediaPlayer.start()
     }
 
+    private fun stopSound() {
+        if (mediaPlayer.isPlaying) mediaPlayer.stop()
+    }
+
     private fun loadSound(uri: Uri) {
+        currentSoundUri = uri
         mediaPlayer.reset()
         try {
             mediaPlayer.setDataSource(this.applicationContext, uri)

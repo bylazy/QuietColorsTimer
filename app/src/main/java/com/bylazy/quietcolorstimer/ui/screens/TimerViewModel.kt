@@ -55,7 +55,7 @@ class TimerViewModel(
                 while (pause.value) {delay(100)}
 
                 if (skip) {
-                    overall += interval.duration - i + 1
+                    overall += interval.duration - i
                     skip = false
                     i = interval.duration
                 }

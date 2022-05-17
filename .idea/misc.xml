@@ -19,6 +19,7 @@
         <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable/ic_launcher_background.xml" value="0.16111111111111112" />
         <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable/ic_play.xml" value="0.1095" />
         <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable/ic_skip.xml" value="0.1095" />
+        <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable/ic_stop.xml" value="0.1095" />
         <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable/ic_type_cook.xml" value="0.16111111111111112" />
         <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable/ic_type_default.xml" value="0.16111111111111112" />
         <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable/ic_type_workout.xml" value="0.16111111111111112" />
@@ -26,12 +27,10 @@
         <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable/is_pause.xml" value="0.1" />
         <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.16111111111111112" />
         <entry key="..\:/Users/TheGodZZZ/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.16111111111111112" />
-        <entry key="..\:/Users/mailo/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable/ic_int_sound_full.xml" value="0.111" />
-        <entry key="..\:/Users/mailo/AndroidStudioProjects/QuietColorsTimer/app/src/main/res/drawable/ic_int_sound_quiet.xml" value="0.111" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">
