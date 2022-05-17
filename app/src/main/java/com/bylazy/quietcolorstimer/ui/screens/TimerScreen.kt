@@ -1,6 +1,7 @@
 package com.bylazy.quietcolorstimer.ui.screens
 
 import android.content.res.Configuration
+import android.net.Uri
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
@@ -43,6 +44,7 @@ fun TimerScr(viewModel: TimerViewModel,
              keepScreenOn: (Boolean) -> Unit,
              restoreBrightness: () -> Unit,
              adjustBrightness: (IntervalType) -> Unit,
+             loadSound: (Uri) -> Unit,
              playSound: () -> Unit,
              vibrate: () -> Unit){
     val systemUiController = rememberSystemUiController()
@@ -53,17 +55,24 @@ fun TimerScr(viewModel: TimerViewModel,
         adjustBrightness(tick.type)
     }
 
+    LaunchedEffect(key1 = tick.interval) {
+        if (tick.sound == IntervalSignal.SOUND_START) playSound()
+    }
+
     LaunchedEffect(key1 = tick) {
         when (tick.sound) {
             IntervalSignal.SOUND -> playSound()
             IntervalSignal.VIBRATION -> vibrate()
             else -> {}
         }
+        if (tick.currentSecondsLeft == 0) {
+            loadSound(tick.soundUri)
+        }
     }
 
     LaunchedEffect(key1 = tick) {
         if (tick.duration == 1 && tick.interval == "Done!") {
-            delay(2000)
+            delay(3000)
             navController.popBackStack()
         }
     }

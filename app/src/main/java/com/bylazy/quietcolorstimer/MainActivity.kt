@@ -2,6 +2,7 @@ package com.bylazy.quietcolorstimer
 
 import android.content.Context
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.*
 import android.util.Log
 import android.view.WindowManager
@@ -22,6 +23,8 @@ import com.bylazy.quietcolorstimer.ui.theme.QuietColorsTimerTheme
 
 class MainActivity : ComponentActivity() {
 
+
+
     private var defaultBrightness: Float = -1f
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var vibrator: Vibrator
@@ -29,7 +32,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         defaultBrightness = window.attributes.screenBrightness
-        mediaPlayer = MediaPlayer.create(this.applicationContext, R.raw.s_forsure_ok) // todo select sound
+        mediaPlayer = MediaPlayer.create(this.applicationContext, R.raw.s_knuckle_ok)
         vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val vManager = this.applicationContext.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
             vManager.defaultVibrator
@@ -60,8 +63,9 @@ class MainActivity : ComponentActivity() {
                                 keepScreenOn = { keepScreenOn(it) },
                                 restoreBrightness = {restoreBrightness()},
                                 adjustBrightness = { adjustBrightness(it) },
-                                playSound = {playSound()},
-                                vibrate = {vibrate()})
+                                loadSound = ::loadSound,
+                                playSound = ::playSound,
+                                vibrate = ::vibrate)
                         }
                     }
                 }
@@ -71,6 +75,17 @@ class MainActivity : ComponentActivity() {
 
     private fun playSound(){
         mediaPlayer.start()
+    }
+
+    private fun loadSound(uri: Uri) {
+        mediaPlayer.reset()
+        try {
+            mediaPlayer.setDataSource(this.applicationContext, uri)
+            mediaPlayer.prepare()
+        } catch (e: Exception) {
+            //Log.d("load sound", e.message?:"unknown")
+            //todo do something
+        }
     }
 
     private fun vibrate() {

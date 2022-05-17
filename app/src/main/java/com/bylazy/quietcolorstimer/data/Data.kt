@@ -1,5 +1,6 @@
 package com.bylazy.quietcolorstimer.data
 
+import android.net.Uri
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import com.bylazy.quietcolorstimer.R
@@ -78,7 +79,7 @@ val intervalSignalList = mapOf(
     IntervalSignal.SOUND_START to Pair("Start sound", R.drawable.ic_int_sound_start)
 )
 
-enum class IntervalSound(i: Int) {
+enum class IntervalSound(val i: Int) {
     CUSTOM(0),
     ALLEYESONME(R.raw.s_alleyesonme_ok),
     BELL(R.raw.s_bell_ok),
@@ -195,6 +196,7 @@ data class Event(val interval: String,
                  val timer: String,
                  val type: IntervalType,
                  val sound: IntervalSignal,
+                 val soundUri: Uri,
                  val duration: Int,
                  val overallDuration: Int,
                  val currentSecondsLeft: Int,
@@ -203,30 +205,20 @@ data class Event(val interval: String,
                  val overallProgress: Float,
                  val color: Color)
 
+const val resPath = "android.resource://com.bylazy.quietcolorstimer/"
+
 val START_EVENT = Event(interval = "Get Ready!",
     next = "",
     timer = "",
     type = IntervalType.DEFAULT,
     sound = IntervalSignal.SILENT,
+    soundUri = Uri.parse(resPath + R.raw.s_knuckle_ok),
     duration = 5,
     overallDuration = 5,
     currentSecondsLeft = 0,
     overallSeconds = 0,
     currentProgress = 0f,
     overallProgress = 0f,
-    color = Color.Black)
-
-val FINISH_EVENT = Event(interval = "Done!",
-    next = "",
-    timer = "",
-    type = IntervalType.DEFAULT,
-    sound = IntervalSignal.SILENT,
-    duration = 0,
-    overallDuration = 0,
-    currentSecondsLeft = 0,
-    overallSeconds = 0,
-    currentProgress = 1f,
-    overallProgress = 1f,
     color = Color.Black)
 
 fun Color.shaded(): Color {
