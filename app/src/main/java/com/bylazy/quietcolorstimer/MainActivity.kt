@@ -35,6 +35,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         defaultBrightness = window.attributes.screenBrightness
         mediaPlayer = MediaPlayer.create(this.applicationContext, currentSoundUri)
+        //mediaPlayer.setOnPreparedListener {  }
         vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val vManager = this.applicationContext.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
             vManager.defaultVibrator
@@ -70,6 +71,7 @@ class MainActivity : ComponentActivity() {
                                 adjustBrightness = { adjustBrightness(it) },
                                 loadSound = ::loadSound,
                                 playSound = ::playSound,
+                                stopSound = ::stopSound,
                                 vibrate = ::vibrate)
                         }
                     }
@@ -97,6 +99,8 @@ class MainActivity : ComponentActivity() {
             //todo do something
         }
     }
+
+
 
     private fun vibrate() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

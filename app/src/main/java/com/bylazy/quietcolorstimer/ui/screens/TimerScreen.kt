@@ -46,6 +46,7 @@ fun TimerScr(viewModel: TimerViewModel,
              adjustBrightness: (IntervalType) -> Unit,
              loadSound: (Uri) -> Unit,
              playSound: () -> Unit,
+             stopSound: () -> Unit,
              vibrate: () -> Unit){
     val systemUiController = rememberSystemUiController()
     val tick by viewModel.intervalsState.collectAsState(initial = START_EVENT)
@@ -101,7 +102,10 @@ fun TimerScr(viewModel: TimerViewModel,
                     .fillMaxWidth()
                     .weight(1f)) {
                     TmrDetails(viewModel = viewModel,
-                        tick = tick, onQuit = {navController.popBackStack()})
+                        tick = tick, onQuit = {
+                            stopSound()
+                            navController.popBackStack()
+                        })
                 }
             }
         }

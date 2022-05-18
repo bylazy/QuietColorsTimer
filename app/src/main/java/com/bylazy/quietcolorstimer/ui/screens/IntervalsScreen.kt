@@ -623,7 +623,7 @@ fun IntervalDetails(
             Divider()
             Spacer(modifier = Modifier.size(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "Custom sound: $fileName",
+                Text(text = "Sound: $fileName",
                     modifier = Modifier.fillMaxWidth(0.65f),
                     maxLines = 1)
                 Spacer(modifier = Modifier
@@ -708,7 +708,8 @@ fun IntervalDetails(
                             duration = duration.coerceIn(MIN_INTERVAL_DURATION, MAX_INTERVAL_DURATION),
                             type = type,
                             signal = signal,
-                            sound = sound,
+                            sound = if (sound == IntervalSound.CUSTOM && uri.isEmpty()) IntervalSound.KNUCKLE
+                                else sound,
                             customSoundUri = uri,
                             color = color.string()
                         )
