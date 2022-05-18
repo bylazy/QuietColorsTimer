@@ -6,8 +6,8 @@ import com.bylazy.quietcolorstimer.data.*
 val test_timer_1 = InTimer(name = "Test timer 1",
     description = "Short description", link = "", pinned = false, type = TimerType.WORKOUT)
 
-val test_timer_2 = InTimer(name = "Test timer 2",
-    description = "Some description", link = "link here", pinned = false, type = TimerType.OTHER)
+/*val test_timer_2 = InTimer(name = "Test timer 2",
+    description = "Some description", link = "link here", pinned = false, type = TimerType.OTHER)*/
 
 val test_timer_1_intervals = listOf(Interval(timerId = 0,
     position = 1,
@@ -29,7 +29,7 @@ val test_timer_1_intervals = listOf(Interval(timerId = 0,
     type = IntervalType.DARK)
 )
 
-val test_timer_2_intervals = listOf(Interval(timerId = 0,
+/*val test_timer_2_intervals = listOf(Interval(timerId = 0,
     position = 1,
     name = "Interval 3",
     duration = 120,
@@ -47,9 +47,7 @@ val test_timer_2_intervals = listOf(Interval(timerId = 0,
     sound = IntervalSound.KNUCKLE,
     customSoundUri = "",
     type = IntervalType.DARK)
-)
-
-//TODO - add 5-10 initial timers - v1 future
+)*/
 
 val initial_timer_yoga_1 = InTimer(name = "Coherent Breathing",
     description = """

@@ -24,7 +24,7 @@ class IntervalsViewModel(application: Application,
     private var intervals = mutableListOf<Interval>()
     val intervalsState = MutableStateFlow(intervals.toList())
 
-    val timer = mutableStateOf(test_timer_1) // TODO - refactor
+    val timer = mutableStateOf(test_timer_1)
 
     var currentInterval = mutableStateOf<Interval?>(null)
 
@@ -131,7 +131,7 @@ class IntervalsViewModel(application: Application,
     fun doneAll() {
         viewModelScope.launch {
             repo.updateTimerWithIntervals(timer.value, intervals.mapIndexed { i,v ->
-                v.copy(id = 0, position = i+1) }) //TODO - check constrains
+                v.copy(id = 0, position = i+1) })
         }
     }
 

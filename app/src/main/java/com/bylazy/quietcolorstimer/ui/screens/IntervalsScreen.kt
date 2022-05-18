@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -60,9 +61,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun IntervalScreen(
     intervalsViewModel: IntervalsViewModel,
-    loadSound: (Uri) -> Unit,
-    playSound: () -> Unit,
-    playOrStop: () -> Unit,
+    loadAndPlaySound: (Uri) -> Unit,
+    stopSound: () -> Unit,
     navController: NavController
 ) {
     val scope = rememberCoroutineScope()
@@ -118,9 +118,8 @@ fun IntervalScreen(
                 onUp = intervalsViewModel::upInterval,
                 onDown = intervalsViewModel::downInterval,
                 onSelect = intervalsViewModel::selectInterval,
-                loadSound = loadSound,
-                playSound = playSound,
-                playOrStop = playOrStop,
+                loadAndPlaySound = loadAndPlaySound,
+                stopSound = stopSound,
                 paddingValues = paddingValues
             )
         }
@@ -175,9 +174,8 @@ fun IntervalsList(
     onUp: (Interval) -> Unit,
     onDown: (Interval) -> Unit,
     onSelect: (Interval) -> Unit,
-    loadSound: (Uri) -> Unit,
-    playSound: () -> Unit,
-    playOrStop: () -> Unit,
+    loadAndPlaySound: (Uri) -> Unit,
+    stopSound: () -> Unit,
     paddingValues: PaddingValues
 ) {
     val state = rememberLazyListState()
@@ -198,9 +196,8 @@ fun IntervalsList(
                     onUp = onUp,
                     onDown = onDown,
                     onSelect = onSelect,
-                    loadSound = loadSound,
-                    playSound = playSound,
-                    playOrStop = playOrStop
+                    loadAndPlaySound = loadAndPlaySound,
+                    stopSound = stopSound
                 )
             }
             Spacer(modifier = Modifier.size(4.dp))
@@ -382,9 +379,8 @@ fun IntervalListItem(
     onUp: (Interval) -> Unit,
     onDown: (Interval) -> Unit,
     onSelect: (Interval) -> Unit,
-    loadSound: (Uri) -> Unit,
-    playSound: () -> Unit,
-    playOrStop: () -> Unit
+    loadAndPlaySound: (Uri) -> Unit,
+    stopSound: () -> Unit
 ) {
     ListItemCard {
         Column {
@@ -402,9 +398,8 @@ fun IntervalListItem(
                     onDelete = onDelete,
                     onDone = onDone,
                     onCancel = onCancel,
-                    loadSound = loadSound,
-                    playSound = playSound,
-                    playOrStop = playOrStop
+                    loadAndPlaySound = loadAndPlaySound,
+                    stopSound = stopSound
                 )
             }
         }
@@ -418,9 +413,8 @@ fun IntervalDetails(
     onDelete: (Interval) -> Unit,
     onDone: (Interval) -> Unit,
     onCancel: () -> Unit,
-    loadSound: (Uri) -> Unit,
-    playSound: () -> Unit,
-    playOrStop: () -> Unit
+    loadAndPlaySound: (Uri) -> Unit,
+    stopSound: () -> Unit
 ) {
     val ctx = LocalContext.current
 
@@ -462,8 +456,7 @@ fun IntervalDetails(
     }
     LaunchedEffect(key1 = sound) {
         if (sound != IntervalSound.CUSTOM) {
-            loadSound(Uri.parse(resPath + sound.i))
-            playSound()
+            loadAndPlaySound(Uri.parse(resPath + sound.i))
         }
     }
     Column(
@@ -624,8 +617,10 @@ fun IntervalDetails(
             Spacer(modifier = Modifier.size(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "Sound: $fileName",
-                    modifier = Modifier.fillMaxWidth(0.65f),
-                    maxLines = 1)
+                    style = MaterialTheme.typography.body2,
+                    modifier = Modifier.fillMaxWidth(0.5f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis)
                 Spacer(modifier = Modifier
                     .size(8.dp)
                     .weight(1f))
@@ -639,8 +634,7 @@ fun IntervalDetails(
                 RoundIconButton(onClick = {
                     if (uri.isNotEmpty()) {
                         scope.launch {
-                            loadSound(Uri.parse(uri))
-                            playSound()
+                            loadAndPlaySound(Uri.parse(uri))
                         }
                     }
                 },
@@ -649,7 +643,7 @@ fun IntervalDetails(
                 Spacer(modifier = Modifier
                     .size(8.dp))
                 RoundIconButton(onClick = {
-                    playOrStop()
+                    stopSound()
                 },
                     painter = painterResource(id = R.drawable.ic_stop),
                     desc = "Stop")
@@ -998,9 +992,8 @@ fun IntervalDetailsPreview() {
                 onDelete = {},
                 onDone = {},
                 onCancel = {},
-                loadSound = {},
-                playSound = {},
-                playOrStop = {})
+                loadAndPlaySound = {},
+                stopSound = {})
         }
     }
 }

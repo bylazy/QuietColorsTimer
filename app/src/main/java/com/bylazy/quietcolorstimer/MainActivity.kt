@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         defaultBrightness = window.attributes.screenBrightness
         mediaPlayer = MediaPlayer.create(this.applicationContext, currentSoundUri)
-        //mediaPlayer.setOnPreparedListener {  }
+
         vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val vManager = this.applicationContext.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
             vManager.defaultVibrator
@@ -56,9 +56,8 @@ class MainActivity : ComponentActivity() {
                             arguments = listOf(navArgument("id"){type = NavType.IntType})){
                             val intervalsViewModel = viewModel<IntervalsViewModel>()
                             IntervalScreen(intervalsViewModel = intervalsViewModel,
-                                loadSound = ::loadSound,
-                                playSound = ::playSound,
-                                playOrStop = ::stopSound,
+                                loadAndPlaySound = ::loadAndPlay,
+                                stopSound = ::stopSound,
                                 navController = navController)
                         }
                         composable("start/{id}",
@@ -80,6 +79,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun loadAndPlay(uri: Uri) {
+        mediaPlayer.reset()
+        mediaPlayer.setOnPreparedListener { mediaPlayer.start() }
+        mediaPlayer.setDataSource(this.applicationContext, uri)
+        mediaPlayer.prepareAsync()
+    }
+
     private fun playSound(){
         mediaPlayer.start()
     }
@@ -91,6 +97,7 @@ class MainActivity : ComponentActivity() {
     private fun loadSound(uri: Uri) {
         currentSoundUri = uri
         mediaPlayer.reset()
+        mediaPlayer.setOnPreparedListener {  }
         try {
             mediaPlayer.setDataSource(this.applicationContext, uri)
             mediaPlayer.prepare()

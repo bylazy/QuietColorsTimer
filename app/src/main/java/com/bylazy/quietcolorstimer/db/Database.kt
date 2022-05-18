@@ -29,8 +29,17 @@ abstract class TimerDB: RoomDatabase(){
                             super.onCreate(db)
                             coroutineScope.launch {
                                 getInstance(context, coroutineScope).timerDAO().apply {
-                                    insertTimerWithIntervals(test_timer_1, test_timer_1_intervals)
-                                    insertTimerWithIntervals(test_timer_2, test_timer_2_intervals)
+                                    insertTimerWithIntervals(initial_timer_yoga_1, initial_timer_yoga_1_intervals)
+                                    insertTimerWithIntervals(initial_timer_yoga_2, initial_timer_yoga_2_intervals)
+                                    insertTimerWithIntervals(initial_timer_yoga_3, initial_timer_yoga_3_intervals)
+                                    insertTimerWithIntervals(initial_timer_yoga_4, initial_timer_yoga_4_intervals)
+                                    insertTimerWithIntervals(initial_timer_workout_1, initial_timer_1_workout_intervals)
+                                    insertTimerWithIntervals(initial_timer_workout_2, initial_timer_workout_2_intervals)
+                                    insertTimerWithIntervals(initial_timer_workout_3, initial_timer_workout_3_intervals)
+                                    insertTimerWithIntervals(initial_timer_workout_4, initial_timer_workout_4_intervals)
+                                    insertTimerWithIntervals(initial_timer_cook_1, initial_timer_cook_1_intervals)
+                                    insertTimerWithIntervals(initial_timer_cook_2, initial_timer_cook_2_intervals)
+                                    insertTimerWithIntervals(initial_timer_common_1, initial_timer_common_1_intervals)
                                 }
                             }
                         }
