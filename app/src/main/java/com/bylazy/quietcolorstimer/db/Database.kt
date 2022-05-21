@@ -23,7 +23,7 @@ abstract class TimerDB: RoomDatabase(){
         fun getInstance(context: Context, coroutineScope: CoroutineScope): TimerDB {
             return INSTANCE?: synchronized(this) {
                 val instance = Room.databaseBuilder(context.applicationContext,
-                    TimerDB::class.java, "timers.db")
+                    TimerDB::class.java, "new_timers.db")
                     .addCallback(object: RoomDatabase.Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)

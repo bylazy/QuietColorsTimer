@@ -223,13 +223,13 @@ val START_EVENT = Event(interval = "Get Ready!",
 
 fun Color.shaded(): Color {
     return if (this.luminance()<=0.5)
-        Color((this.red+0.1F).coerceAtMost(1F),
-            (this.green+0.1F).coerceAtMost(1F),
-            (this.blue+0.1F).coerceAtMost(1F))
+        Color((this.red+0.15F).coerceAtMost(1F),
+            (this.green+0.15F).coerceAtMost(1F),
+            (this.blue+0.15F).coerceAtMost(1F))
     else
-        Color((this.red-0.1F).coerceAtLeast(0F),
-            (this.green-0.1F).coerceAtLeast(0F),
-            (this.blue-0.1F).coerceAtLeast(0F))
+        Color((this.red-0.15F).coerceAtLeast(0F),
+            (this.green-0.15F).coerceAtLeast(0F),
+            (this.blue-0.15F).coerceAtLeast(0F))
 }
 
 fun Int.durationText() = if (this < 100) this.toString().padStart(2, '0')

@@ -67,7 +67,7 @@ val initial_timer_yoga_1 = InTimer(name = "Coherent Breathing",
     pinned = false,
     type = TimerType.YOGA)
 
-val initial_timer_yoga_1_intervals = (0..13).mapIndexed { i, _ ->
+val initial_timer_yoga_1_intervals = (0..13).map { i ->
     if (i%2==0) Interval(timerId = 0,
         position = i+1,
         name = "Inhale",
@@ -86,7 +86,7 @@ val initial_timer_yoga_1_intervals = (0..13).mapIndexed { i, _ ->
         sound = IntervalSound.KNUCKLE,
         customSoundUri = "",
         type = IntervalType.DEFAULT)
-} + (14..25).mapIndexed { i, _ ->
+} + (14..25).map { i ->
     if (i%2==0) Interval(timerId = 0,
         position = i+1,
         name = "Inhale",
@@ -105,7 +105,7 @@ val initial_timer_yoga_1_intervals = (0..13).mapIndexed { i, _ ->
         sound = IntervalSound.KNUCKLE,
         customSoundUri = "",
         type = IntervalType.DEFAULT)
-} + (26..35).mapIndexed { i, _ ->
+} + (26..35).map { i ->
     if (i%2==0) Interval(timerId = 0,
         position = i+1,
         name = "Inhale",
@@ -124,7 +124,7 @@ val initial_timer_yoga_1_intervals = (0..13).mapIndexed { i, _ ->
         sound = IntervalSound.KNUCKLE,
         customSoundUri = "",
         type = IntervalType.DEFAULT)
-} + (36..43).mapIndexed { i, _ ->
+} + (36..43).map { i ->
     if (i%2==0) Interval(timerId = 0,
         position = i+1,
         name = "Inhale",
@@ -143,7 +143,7 @@ val initial_timer_yoga_1_intervals = (0..13).mapIndexed { i, _ ->
         sound = IntervalSound.KNUCKLE,
         customSoundUri = "",
         type = IntervalType.DEFAULT)
-} + (44..51).mapIndexed { i, _ ->
+} + (44..51).map { i ->
     if (i%2==0) Interval(timerId = 0,
         position = i+1,
         name = "Inhale",

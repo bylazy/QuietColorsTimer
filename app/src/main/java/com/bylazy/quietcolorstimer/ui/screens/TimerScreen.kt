@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -138,7 +139,12 @@ fun TmrDetails(viewModel: TimerViewModel, tick: Event, onQuit: () -> Unit) {
         Spacer(modifier = Modifier
             .size(8.dp)
             .weight(1f))
-        Text(text = tick.interval, fontSize = dpToSp(dp = 54.dp), fontWeight = FontWeight.ExtraBold, color = onColor)
+        Text(text = tick.interval,
+            fontSize = dpToSp(dp = 50.dp),
+            fontWeight = FontWeight.ExtraBold,
+            color = onColor,
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1)
         Spacer(modifier = Modifier.size(4.dp))
         Text(text = if (tick.interval == "Done!" && tick.duration == 1) " " else "Next: ${tick.next}",
             fontSize = dpToSp(dp = 20.dp),

@@ -66,8 +66,10 @@ fun HomeScreenContent(
     val scope = rememberCoroutineScope()
     val timerState by viewModel.timers.collectAsState(initial = listOf())
     val selectedTimer by viewModel.selectedTimer
+    /*
     val listState = if (selectedTimer != null) rememberLazyListState(timerState.map {it.timer}.indexOf(selectedTimer))
-        else rememberLazyListState()
+        else rememberLazyListState()*/
+    val listState = rememberLazyListState()
     val filterText by viewModel.filterFlow.collectAsState(initial = "")
     LaunchedEffect(key1 = selectedTimer) {
         if (selectedTimer != null) {
