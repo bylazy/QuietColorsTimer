@@ -148,6 +148,7 @@ fun TmrDetails(viewModel: TimerViewModel, tick: Event, onQuit: () -> Unit) {
         Spacer(modifier = Modifier.size(4.dp))
         Text(text = if (tick.interval == "Done!" && tick.duration == 1) " " else "Next: ${tick.next}",
             fontSize = dpToSp(dp = 20.dp),
+            fontWeight = FontWeight.Bold,
             color = onColor)
         Spacer(modifier = Modifier.size(24.dp))
         Row(modifier = Modifier
@@ -240,7 +241,7 @@ fun Counter(tick: Event) {
     LaunchedEffect(tick) {
         animProgress = tick.currentProgress
         if (tick.currentProgress == 1f) {
-            delay(900)
+            delay(850)
             animProgress = 0f
         }
     }

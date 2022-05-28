@@ -305,7 +305,7 @@ fun FilledIconButton(modifier: Modifier,
                 contentDescription = contentDescription,
                 modifier = Modifier.size(24.dp))
             Spacer(modifier = Modifier.size(8.dp))
-            Text(text = text, style = MaterialTheme.typography.button)
+            Text(text = text, fontSize = dpToSp(dp = 14.dp), style = MaterialTheme.typography.button)
     }
 }
 

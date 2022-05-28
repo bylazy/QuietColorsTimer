@@ -470,7 +470,7 @@ fun IntervalDetails(
                     value = name,
                     onValueChange = { name = it.take(MAX_INTERVAL_NAME_LENGTH) },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(text = "Short interval name") },
+                    label = { Text(text = "Short interval name", overflow = TextOverflow.Ellipsis, maxLines = 1) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = {focusManager.clearFocus()}),
@@ -484,11 +484,12 @@ fun IntervalDetails(
             Column(modifier = Modifier.weight(0.5f)) {
                 ExposedDropdownMenuBox(expanded = typeSelectorExpanded,
                     onExpandedChange = { typeSelectorExpanded = !typeSelectorExpanded }) {
-                    TextField(value = intervalTypeList[type]?.first?:"Backlit type",
+                    TextField(value = intervalTypeList[type]?.first?:"Brightness",
                         onValueChange = {},
-                        label = { Text(text = "Backlit") },
+                        label = { Text(text = "Brightness", overflow = TextOverflow.Ellipsis, maxLines = 1) },
                         modifier = Modifier.fillMaxWidth(),
                         readOnly = true,
+                        singleLine = true,
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(
                                 expanded = typeSelectorExpanded
@@ -518,7 +519,9 @@ fun IntervalDetails(
                                 Spacer(modifier = Modifier.size(4.dp))
                                 Text(
                                     text = it.value.first,
-                                    modifier = Modifier.align(Alignment.CenterVertically)
+                                    modifier = Modifier.align(Alignment.CenterVertically),
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 1
                                 )
                             }
                         }
@@ -569,7 +572,9 @@ fun IntervalDetails(
                                 Spacer(modifier = Modifier.size(4.dp))
                                 Text(
                                     text = it.value.first,
-                                    modifier = Modifier.align(Alignment.CenterVertically)
+                                    modifier = Modifier.align(Alignment.CenterVertically),
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 1
                                 )
                             }
                         }

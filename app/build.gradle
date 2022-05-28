@@ -8,9 +8,9 @@ android {
     signingConfigs {
         release {
             storeFile file('C:\\Users\\mailo\\Documents\\gks\\bylazy.jks')
-            storePassword 'new955824'
+            storePassword pass
             keyAlias 'upload'
-            keyPassword 'new955824'
+            keyPassword pass
         }
     }
     compileSdk 32

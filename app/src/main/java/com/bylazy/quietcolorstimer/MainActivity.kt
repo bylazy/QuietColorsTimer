@@ -33,6 +33,16 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        savedInstanceState?.let {
+            //Log.d("loaded", it.getString("uri")?:"nothing...")
+            it.getString("uri")?.let { uri ->
+                currentSoundUri = Uri.parse(uri)
+                //Log.d("parsed", currentSoundUri.toString())
+            }
+        }
+
+        val homeViewModel by viewModels<HomeViewModel>()
         defaultBrightness = window.attributes.screenBrightness
         mediaPlayer = MediaPlayer.create(this.applicationContext, currentSoundUri)
 
@@ -40,7 +50,7 @@ class MainActivity : ComponentActivity() {
             val vManager = this.applicationContext.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
             vManager.defaultVibrator
         } else this.applicationContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        val homeViewModel by viewModels<HomeViewModel>()
+
         setContent {
             QuietColorsTimerTheme {
                 // A surface container using the 'background' color from the theme
@@ -79,6 +89,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+
+
     private fun loadAndPlay(uri: Uri) {
         mediaPlayer.reset()
         mediaPlayer.setOnPreparedListener { mediaPlayer.start() }
@@ -95,6 +107,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun loadSound(uri: Uri) {
+        //Log.d("uri loaded", uri.toString())
         currentSoundUri = uri
         mediaPlayer.reset()
         mediaPlayer.setOnPreparedListener {  }
@@ -107,7 +120,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("uri", currentSoundUri.toString())
+        //Log.d("saved", currentSoundUri.toString())
+    }
 
     private fun vibrate() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

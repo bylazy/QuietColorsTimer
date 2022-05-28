@@ -1,10 +1,6 @@
 package com.bylazy.quietcolorstimer.ui.screens
 
-import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.content.Intent.ACTION_VIEW
 import android.content.res.Configuration
-import android.net.Uri
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.*
@@ -26,14 +22,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -66,9 +60,6 @@ fun HomeScreenContent(
     val scope = rememberCoroutineScope()
     val timerState by viewModel.timers.collectAsState(initial = listOf())
     val selectedTimer by viewModel.selectedTimer
-    /*
-    val listState = if (selectedTimer != null) rememberLazyListState(timerState.map {it.timer}.indexOf(selectedTimer))
-        else rememberLazyListState()*/
     val listState = rememberLazyListState()
     val filterText by viewModel.filterFlow.collectAsState(initial = "")
     LaunchedEffect(key1 = selectedTimer) {
@@ -183,7 +174,7 @@ fun HomeTopBar(
         if (!isFilterOn) {
             Spacer(modifier = Modifier.size(12.dp))
             Text(
-                text = "Quiet Colors Timer",
+                text = stringResource(id = R.string.app_name),
                 style = MaterialTheme.typography.h6
             )
             Spacer(

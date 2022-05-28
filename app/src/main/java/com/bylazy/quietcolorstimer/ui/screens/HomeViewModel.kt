@@ -1,10 +1,13 @@
 package com.bylazy.quietcolorstimer.ui.screens
 
 import android.app.Application
+import android.net.Uri
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.bylazy.quietcolorstimer.data.IntervalSound
 import com.bylazy.quietcolorstimer.data.NEW_TIMER
+import com.bylazy.quietcolorstimer.data.resPath
 import com.bylazy.quietcolorstimer.db.InTimer
 import com.bylazy.quietcolorstimer.db.TimerDB
 import com.bylazy.quietcolorstimer.db.TimerWithIntervals
@@ -19,6 +22,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     private val db = TimerDB.getInstance(application, viewModelScope)
     private val repo = Repo(db.timerDAO())
+
 
     val filterFlow = MutableStateFlow("")
 
